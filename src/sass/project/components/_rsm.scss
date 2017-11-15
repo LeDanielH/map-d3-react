@@ -1,0 +1,98 @@
+
+//#country-11 {
+//	display: none;
+//}
+
+.rsm {
+	&-geographies {
+		overflow: hidden;
+	}
+	&-geography {
+		@include will-change(fill);
+		@extend %anim-base;
+		fill: $c-country;
+		stroke: $c-border;
+		stroke-width: 0.2;
+		position: relative;
+		&:hover {
+			fill: lighten($c-country, 10%);
+		}
+		text {
+			color: white;
+			font-size: 6px;
+			display: inline-block;
+			@include position(absolute, 50% null null 50%);
+			transform: translate(-50%, -50%);
+		}
+	}
+	&-zoomable-group {
+		@include will-change(transform);
+		@extend %anim-base;
+	}
+	&-marker {
+		cursor: pointer;
+		circle {
+			@include will-change(fill, transform, stroke-width, stroke);
+			@extend %anim-base;
+			fill: $c-marker;
+			stroke: $c-marker-stroke;
+			stroke-width: 0px;
+			r: 1px;
+		}
+		&-text {
+			display: inline-block;
+			@include will-change(transform, opacity);
+			@extend %anim-base;
+			transform: translate3d(-50%, 0, 0);
+			font-size: 3px;
+			opacity: 0;
+			fill: white;
+		}
+		&:focus, &:hover {
+			circle {
+
+				stroke-width: 4px;
+
+			}
+			.rsm-marker-text {
+				opacity: 1;
+				transform: translate3d(-50%, -110%, 0);
+			}
+		}
+	}
+	&-annotation {
+
+		&-text {
+			display: inline-block;
+			@include will-change(transform, opacity);
+			@extend %anim-base;
+			fill: white;
+			font-size: 4px;
+			transform: scale(0);
+			opacity: 0;
+			&.active {
+				transform: scale(1);
+				opacity: 1;
+			}
+
+		}
+
+	}
+	&-svg {
+		background-color: $c-water;
+	}
+	&-graticule {
+		path {
+			stroke: lighten($c-country, 20%);
+			stroke-width: 0.2px;
+		}
+
+	}
+}
+
+path, circle, g {
+	outline: none;
+	&:focus {
+		outline: none;
+	}
+}

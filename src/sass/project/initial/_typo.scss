@@ -1,0 +1,7 @@
+h1, h2, h3, h4, p {
+	@include margin(0 null);
+}
+
+body {
+	font-family: sans-serif;
+}

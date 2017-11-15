@@ -1,0 +1,4 @@
+@mixin will-change($animProperties...) {
+	will-change: #{$animProperties};
+	transition-property: #{$animProperties};
+}
