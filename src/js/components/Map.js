@@ -16,6 +16,12 @@ import countries from '../../data/countries/dist/countries.json';
 import countryCapitals from '../../data/map/country-capitals.json';
 import mapOptions from '../options/mapOptions';
 
+// todo might be helpful importing separate topojson files
+// const context = require.context('../../data/countries/data', true, /\.topo\.json$/);
+// var obj = {};
+// context.keys().forEach(function (key) {
+// 	obj[key] = context(key);
+// });
 
 class Map extends Component {
 
