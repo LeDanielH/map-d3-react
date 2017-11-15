@@ -9,7 +9,7 @@ import {
 	Graticule,
 	Annotations,
 	Annotation
-} from "react-simple-maps"
+} from "react-simple-maps";
 import { feature } from 'topojson-client';
 import worldMap from 'react-simple-maps/topojson-maps/world-50m.json';
 import countries from '../../data/countries/dist/countries.json';
