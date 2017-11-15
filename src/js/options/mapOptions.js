@@ -4,7 +4,11 @@ const mapOptions = {
 	zoomMin: 1,
 	zoomMax: 8,
 	zoomFocus: 4,
-	centerWorld: [0, 25],
+	centerWorld: {
+		long: 0,
+		lat: 25
+	},
+
 	waterColor: '#0d5469',
 
 	countryStyle: {
@@ -27,6 +31,13 @@ const mapOptions = {
 			outline: "none",
 		},
 	},
+	// https://stackoverflow.com/questions/11849636/maximum-lat-and-long-bounds-for-the-world-google-maps-api-latlngbounds
+	worldBoundaries: {
+		latMin: -85,
+		latMax: 85,
+		longMin: -180,
+		longMax: 180
+	},
 	wrapperStyles: {
 		width: "100%",
 		maxWidth: 980,
@@ -42,8 +53,11 @@ const mapOptions = {
 		mercator: "mercator"
 	},
 	projectionConfig: {
-		scale: 200,
-		rotation: [-10,0,0],
+		scale: 180,
+		xOffset: 0,
+		yOffset: 0,
+		rotation: [0,0,0],
+		precision: 0.1
 	},
 	annotationStyles: {
 		pointerEvents: 'none'
