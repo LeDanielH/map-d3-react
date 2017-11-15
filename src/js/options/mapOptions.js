@@ -5,6 +5,7 @@ const mapOptions = {
 	zoomMax: 8,
 	zoomFocus: 4,
 	centerWorld: [0, 25],
+	waterColor: '#0d5469',
 
 	countryStyle: {
 		default: {

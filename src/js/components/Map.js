@@ -10,6 +10,9 @@ import {
 	Annotations,
 	Annotation
 } from "react-simple-maps";
+
+/* to add more custom projections directly from d3-geo-projections */
+// import { geoAiry, geoOrthographicRaw } from 'd3-geo-projection';
 import { feature } from 'topojson-client';
 import worldMap from 'react-simple-maps/topojson-maps/world-50m.json';
 import countries from '../../data/countries/dist/countries.json';
@@ -34,6 +37,10 @@ class Map extends Component {
 			locations: [],
 			annotations: [],
 			projectionType: mapOptions.projections.miller,
+
+			/* to add other custom projections directly from d3-geo-projections */
+			// projectionType: geoOrthographicRaw,
+
 			activeAnnotation: null
 		};
 		this.handleMarkerClick = this.handleMarkerClick.bind(this);
@@ -191,6 +198,11 @@ class Map extends Component {
 							zoom={this.state.zoom}
 							disablePanning={true}
 						>
+							{/* dummy graticule for water color */}
+							<Graticule
+								fill={mapOptions.waterColor}
+								stroke={mapOptions.waterColor}
+							/>
 
 							<Geographies
 								geographyPaths={this.state.geographyPaths}
