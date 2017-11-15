@@ -1,4 +1,6 @@
-import React, { Component } from "react"
+import React, { Component } from "react";
+import { geoCentroid, geoPath } from 'd3-geo';
+import { geoMiller } from 'd3-geo-projection';
 import {
 	ComposableMap,
 	ZoomableGroup,
@@ -10,6 +12,7 @@ import {
 	Annotations,
 	Annotation
 } from "react-simple-maps";
+
 
 /* to add more custom projections directly from d3-geo-projections */
 // import { geoAiry, geoOrthographicRaw } from 'd3-geo-projection';
@@ -26,17 +29,36 @@ import mapOptions from '../options/mapOptions';
 // 	obj[key] = context(key);
 // });
 
+const projectionForCentroids = geoMiller() // same as the one for react-simple-maps
+	// making sure options stay the same as in react-simple-maps
+	.scale(mapOptions.projectionConfig.scale)
+	.translate([
+		mapOptions.projectionConfig.xOffset + mapOptions.width / 2,
+		mapOptions.projectionConfig.yOffset + mapOptions.height / 2
+	])
+	.rotate(mapOptions.projectionConfig.rotation)
+	.precision(mapOptions.projectionConfig.precision);
+
+const pathForCentroids = geoPath().projection(projectionForCentroids);
+
+function getCentroid(geoJsonObject) {
+	return projectionForCentroids.invert(pathForCentroids.centroid(geoJsonObject));
+}
+
 class Map extends Component {
 
 	constructor() {
 		super();
 		this.state = {
-			center: [0, 0],
 			zoom: 1,
 			geographyPaths: [],
 			locations: [],
 			annotations: [],
 			projectionType: mapOptions.projections.miller,
+			center: {
+				long: 0,
+				lat: 0
+			},
 
 			/* to add other custom projections directly from d3-geo-projections */
 			// projectionType: geoOrthographicRaw,
@@ -51,6 +73,7 @@ class Map extends Component {
 		this.handleZoomOut = this.handleZoomOut.bind(this);
 		this.handleCountryMouseEnter = this.handleCountryMouseEnter.bind(this);
 		this.handleCountryMouseLeave = this.handleCountryMouseLeave.bind(this);
+		this.handleMoveEnd = this.handleMoveEnd.bind(this);
 	}
 
 	componentWillMount() {
@@ -78,7 +101,10 @@ class Map extends Component {
 
 		function success(position) {
 			_this.setState({
-				center: [position.coords.longitude, position.coords.latitude],
+				center: {
+					long: position.coords.longitude,
+					lat: position.coords.latitude
+				},
 				zoom: mapOptions.zoomFocus
 			});
 		}
@@ -119,6 +145,7 @@ class Map extends Component {
 				short: country.cca3
 			})
 		);
+
 		this.setState({ annotations: annotations });
 	}
 
@@ -126,18 +153,50 @@ class Map extends Component {
 		// zoom and pan to a selection
 		if(this.state.zoom >= mapOptions.zoomFocus) {
 			this.setState({
-				center: location.coordinates
+				center: {
+					long: location.coordinates[0],
+					lat: location.coordinates[1],
+				}
 			})
 		} else {
 			this.setState({
 				zoom: mapOptions.zoomFocus,
-				center: location.coordinates
+				center: {
+					long: location.coordinates[0],
+					lat: location.coordinates[1],
+				}
 			})
 		}
 	}
 
-	handleCountryClick(id) {
-		this.setState({ activeAnnotation: id })
+	handleCountryClick(id, center) {
+		this.setState({
+			activeAnnotation: id,
+			center: {
+				long: center[0],
+				lat: center[1]
+			}
+		});
+
+		if(this.state.zoom < 4) {
+			this.setState({
+				zoom: mapOptions.zoomFocus,
+			});
+		}
+	}
+
+	handleMoveStart(newCenter) {
+		console.log("New center: ", newCenter)
+	}
+
+	handleMoveEnd(newCenter) {
+		console.log("New center: ", newCenter)
+		this.setState({
+			center: {
+				long: newCenter[0],
+				lat: newCenter[1]
+			}
+		})
 	}
 
 	handleZoomIn() {
@@ -152,13 +211,12 @@ class Map extends Component {
 
 	handleReset() { // returns world center, not current location
 		this.setState({
-			center: mapOptions.centerWorld,
 			zoom: 1,
+			center: {
+				long: mapOptions.centerWorld.long,
+				lat: mapOptions.centerWorld.lat
+			}
 		})
-	}
-
-	centerCountry(centroid) {
-		this.setState({ center: centroid});
 	}
 
 	setAnnotationActive(id) {
@@ -185,18 +243,17 @@ class Map extends Component {
 						width={mapOptions.width}
 						height={mapOptions.height}
 						projection={this.state.projectionType}
-						projectionConfig={{
-							scale: 180
-						}}
+						projectionConfig={mapOptions.projectionConfig}
 						style={{
 							width: "100%",
 							height: "auto",
 						}}
 					>
 						<ZoomableGroup
-							center={this.state.center}
+							center={[this.state.center.long, this.state.center.lat]}
 							zoom={this.state.zoom}
 							disablePanning={true}
+							// onMoveEnd={this.handleMoveEnd}
 						>
 							{/* dummy graticule for water color */}
 							<Graticule
@@ -210,18 +267,22 @@ class Map extends Component {
 							>
 								{
 									(geographies, projection) =>
-										geographies.map((geography, i) =>
-											<Geography
-												key={`country-${i}`}
-												cacheId={`country-${i}`}
-												id={`country-${i}`}
-												round
-												geography={geography}
-												projection={projection}
-												onClick={() => this.handleCountryClick(geography.id)}
-												// onMouseEnter={() => this.handleCountryMouseEnter(geography.id)}
-												>
-											</Geography>
+										geographies.map((geography, i) => {
+											const centroid = getCentroid(geography);
+											return (
+												<Geography
+
+													key={`country-${i}`}
+													cacheId={`country-${i}`}
+													id={`country-${i}`}
+													round
+													geography={geography}
+													projection={projection}
+													onClick={() => this.handleCountryClick(geography.id, centroid)}
+													// onMouseEnter={() => this.handleCountryMouseEnter(geography.id)}
+													>
+												</Geography>
+											)}
 										)
 								}
 							</Geographies>
