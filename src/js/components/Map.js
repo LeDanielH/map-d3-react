@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { geoCentroid, geoPath } from 'd3-geo';
+import { geoPath } from 'd3-geo';
 import { geoMiller } from 'd3-geo-projection';
 import {
 	ComposableMap,
@@ -59,20 +59,21 @@ class Map extends Component {
 				long: 0,
 				lat: 0
 			},
-
-			/* to add other custom projections directly from d3-geo-projections */
-			// projectionType: geoOrthographicRaw,
-
+			longMax: 20,
+			longMin: -20,
+			latMax: 40,
+			latMin: -40,
 			activeAnnotation: null
 		};
 		this.handleMarkerClick = this.handleMarkerClick.bind(this);
 		this.handleCountryClick = this.handleCountryClick.bind(this);
+		this.handleCountryDblClick = this.handleCountryDblClick.bind(this);
 		this.handleReset = this.handleReset.bind(this);
 		this.projection = this.projection.bind(this);
 		this.handleZoomIn = this.handleZoomIn.bind(this);
 		this.handleZoomOut = this.handleZoomOut.bind(this);
 		this.handleCountryMouseEnter = this.handleCountryMouseEnter.bind(this);
-		this.handleCountryMouseLeave = this.handleCountryMouseLeave.bind(this);
+		Map.handleCountryMouseLeave = Map.handleCountryMouseLeave.bind(this);
 		this.handleMoveEnd = this.handleMoveEnd.bind(this);
 	}
 
@@ -87,7 +88,7 @@ class Map extends Component {
 		this.setState({ activeAnnotation: id })
 	}
 
-	handleCountryMouseLeave(id) {
+	static handleCountryMouseLeave(id) {
 		console.log('hiding annotation', id);
 	}
 
@@ -106,11 +107,20 @@ class Map extends Component {
 					lat: position.coords.latitude
 				},
 				zoom: mapOptions.zoomFocus
-			});
+			}, _this.setBoundaries(mapOptions.zoomFocus, position.coords.longitude, position.coords.latitude));
+
 		}
 
 		function error() {
 			console.log('unable to retrieve your location');
+			_this.setState({
+				center: {
+					long: mapOptions.centerWorld.long,
+					lat: mapOptions.centerWorld.lat
+				},
+				zoom: mapOptions.zoomMin
+			}, _this.setBoundaries(mapOptions.zoomMin, mapOptions.centerWorld.long, mapOptions.centerWorld.lat));
+
 		}
 
 		navigator.geolocation.getCurrentPosition(success, error);
@@ -131,7 +141,7 @@ class Map extends Component {
 		const cities = countryCapitals.map((city, i) => ({
 				id: `city-${i}`,
 				name: city.CapitalName,
-				coordinates: [city.CapitalLongitude, city.CapitalLatitude]
+				coordinates: [parseFloat(city.CapitalLongitude), parseFloat(city.CapitalLatitude)]
 			})
 		);
 		this.setState({locations: cities});
@@ -149,48 +159,158 @@ class Map extends Component {
 		this.setState({ annotations: annotations });
 	}
 
-	handleMarkerClick(location) {
-		// zoom and pan to a selection
-		if(this.state.zoom >= mapOptions.zoomFocus) {
-			this.setState({
-				center: {
-					long: location.coordinates[0],
-					lat: location.coordinates[1],
-				}
-			})
-		} else {
-			this.setState({
-				zoom: mapOptions.zoomFocus,
-				center: {
-					long: location.coordinates[0],
-					lat: location.coordinates[1],
-				}
-			})
+	// todo figure out how not to hard code these values
+	setBoundaries(zoom, longitude, latitude) {
+		const _this = this;
+		switch (zoom) {
+			case 1:
+				this.setState({
+					longMax: 15,
+					longMin: -15,
+					latMax: 40,
+					latMin: -40
+				}, () => _this.positionMap(longitude, latitude));
+				break;
+			case 2:
+				this.setState({
+					longMax: 92,
+					longMin: -92,
+					latMax: 65,
+					latMin: -65
+				}, () => _this.positionMap(longitude, latitude));
+				break;
+			case 4:
+				this.setState({
+					longMax: 135,
+					longMin: -135,
+					latMax: 80,
+					latMin: -80
+				}, () => _this.positionMap(longitude, latitude));
+				break;
+
+			case 8:
+				this.setState({
+					longMax: 154,
+					longMin: -154,
+					latMax: 86,
+					latMin: -86
+				}, () => _this.positionMap(longitude, latitude));
+				break;
+			case 16:
+				this.setState({
+					longMax: 164,
+					longMin: -164,
+					latMax: 88,
+					latMin: -88
+				}, () => _this.positionMap(longitude, latitude));
+				break;
+
 		}
+	}
+
+	handleMarkerClick(location) {
+		const _this = this;
+		const longitude = location.coordinates[0];
+		const latitude = location.coordinates[1];
+		const isLessThanMarkerFocus = this.state.zoom < mapOptions.zoomFocus;
+
+		if(isLessThanMarkerFocus) {
+			this.setState({
+				zoom: mapOptions.zoomFocus
+			}, () => _this.setBoundaries(mapOptions.zoomFocus, longitude, latitude));
+
+		}
+
+		this.setBoundaries(this.state.zoom, longitude, latitude);
+	}
+
+	handleMarkerDblClick(location) {
+		const _this = this;
+		const longitude = location.coordinates[0];
+		const latitude = location.coordinates[1];
+		const newZoom = this.state.zoom;
+		this.setState({
+			zoom: newZoom
+		}, () => _this.setBoundaries(newZoom, longitude, latitude));
+
+
+	}
+
+	positionMap(longitude, latitude) {
+
+		const longMin = this.state.longMin;
+		const longMax = this.state.longMax;
+		const latMin = this.state.latMin;
+		const latMax = this.state.latMax;
+
+		const isLessThanLongMin = longitude < longMin;
+		const isMoreThanLongMax = longitude > longMax;
+		const isLessThanLatMin = latitude < latMin;
+		const isMoreThanLatMax = latitude > latMax;
+
+		function getLongitude() {
+			if(isLessThanLongMin) {
+				return longMin
+			} else if(isMoreThanLongMax) {
+				return longMax
+			} else {
+				return longitude
+			}
+		}
+
+		function getLatitude() {
+			if(isLessThanLatMin) {
+				return latMin
+			} else if(isMoreThanLatMax) {
+				return latMax
+			} else {
+				return latitude
+			}
+		}
+
+		this.setState({
+			center: {
+				long: getLongitude(),
+				lat: getLatitude()
+			}
+		});
 	}
 
 	handleCountryClick(id, center) {
-		this.setState({
-			activeAnnotation: id,
-			center: {
-				long: center[0],
-				lat: center[1]
-			}
-		});
+		const _this = this;
+		const longitude = center[0];
+		const latitude = center[1];
+		const minZoom = this.state.zoom <= mapOptions.zoomMin;
 
-		if(this.state.zoom < 4) {
+		if(minZoom) {
 			this.setState({
-				zoom: mapOptions.zoomFocus,
-			});
+				zoom: mapOptions.zoomCountryMin
+			}, () => _this.setBoundaries(mapOptions.zoomCountryMin, longitude, latitude));
+
 		}
+		this.setState({activeAnnotation: id,});
+		this.setBoundaries(this.state.zoom, longitude, latitude);
 	}
 
-	handleMoveStart(newCenter) {
+	handleCountryDblClick(id, center) {
+		const _this = this;
+		const longitude = center[0];
+		const latitude = center[1];
+		const newZoom = this.state.zoom * 2;
+		this.setState({
+			activeAnnotation: id,
+			zoom: newZoom
+		}, () => _this.setBoundaries(newZoom, longitude, latitude));
+
+
+	}
+
+	static handleMoveStart(newCenter) {
 		console.log("New center: ", newCenter)
 	}
 
 	handleMoveEnd(newCenter) {
-		console.log("New center: ", newCenter)
+		console.log("New center: ", newCenter);
 		this.setState({
 			center: {
 				long: newCenter[0],
@@ -200,28 +320,94 @@ class Map extends Component {
 	}
 
 	handleZoomIn() {
-		if(this.state.zoom >= mapOptions.zoomMax) return;
-		this.setState({ zoom: this.state.zoom * 2 })
+		const isBiggerThanMax = this.state.zoom >= mapOptions.zoomMax;
+		if(isBiggerThanMax) return;
+		const newZoom = this.state.zoom * 2;
+		this.setState({ zoom: newZoom });
 	}
 
 	handleZoomOut() {
-		if(this.state.zoom <= mapOptions.zoomMin) return;
-		this.setState({ zoom: this.state.zoom / 2 })
+		const isSmallerThanMin = this.state.zoom <= mapOptions.zoomMin;
+		if(isSmallerThanMin) return;
+		const newZoom = this.state.zoom / 2;
+		this.setState({ zoom: newZoom });
 	}
 
 	handleReset() { // returns world center, not current location
+		const _this = this;
 		this.setState({
-			zoom: 1,
+			zoom: mapOptions.zoomMin,
+			activeAnnotation: null,
 			center: {
 				long: mapOptions.centerWorld.long,
 				lat: mapOptions.centerWorld.lat
 			}
-		})
+		}, () => _this.setBoundaries(mapOptions.zoomMin, mapOptions.centerWorld.long, mapOptions.centerWorld.lat));
+	}
+
+	getClickHandler(onClick, onDoubleClick, delay) {
+		let timeoutID = null;
+		delay = delay || mapOptions.dblClickDelay;
+		return function (event) {
+			if (!timeoutID) {
+				timeoutID = setTimeout(() => {
+					onClick(event);
+					timeoutID = null
+				}, delay);
+			} else {
+				timeoutID = clearTimeout(timeoutID);
+				onDoubleClick(event);
+			}
+		};
 	}
 
 	setAnnotationActive(id) {
 		const isAnnotationActive = this.state.activeAnnotation === id;
 		return isAnnotationActive ? 'active' : '';
+	}
+
+	pan(direction) {
+		const currentLat = this.state.center.lat;
+		const currentLong = this.state.center.long;
+		const increment = 10;
+
+		switch (direction) {
+			case 'left':
+				this.setState({
+					center: {
+						...this.state.center,
+						long: currentLong - increment,
+					}
+				});
+				break;
+			case 'right':
+				this.setState({
+					center: {
+						...this.state.center,
+						long: currentLong + increment,
+					}
+				});
+				break;
+			case 'up':
+				this.setState({
+					center: {
+						...this.state.center,
+						lat: currentLat + increment,
+					}
+				});
+				break;
+			case 'down':
+				this.setState({
+					center: {
+						...this.state.center,
+						lat: currentLat - increment,
+					}
+				});
+				break;
+			default:
+				console.log('no direction has been specified');
+		}
+
 	}
 
 	render() {
@@ -233,12 +419,12 @@ class Map extends Component {
 					<button onClick={this.handleZoomOut}>zoom out</button>
 				</div>
 				<div>
-					<button>up</button>
-					<button>right</button>
-					<button>bottom</button>
-					<button>left</button>
+					<button onClick={() => this.pan('up')}>up</button>
+					<button onClick={() => this.pan('right')}>right</button>
+					<button onClick={() => this.pan('down')}>bottom</button>
+					<button onClick={() => this.pan('left')}>left</button>
 				</div>
-				<div style={mapOptions.wrapperStyles}>
+				<div style={mapOptions.wrapperStyles} className={'rsm-wrapper'}>
 					<ComposableMap
 						width={mapOptions.width}
 						height={mapOptions.height}
@@ -278,8 +464,12 @@ class Map extends Component {
 													round
 													geography={geography}
 													projection={projection}
-													onClick={() => this.handleCountryClick(geography.id, centroid)}
+													// onClick={() => this.handleCountryClick(geography.id, centroid)}
 													// onMouseEnter={() => this.handleCountryMouseEnter(geography.id)}
+													onClick={this.getClickHandler(
+														()=> this.handleCountryClick(geography.id, centroid),
+														()=> this.handleCountryDblClick(geography.id, centroid))
+													}
 													>
 												</Geography>
 											)}
@@ -294,7 +484,10 @@ class Map extends Component {
 												<Marker
 													key={`location-${i}`}
 													marker={location}
-													onClick={this.handleMarkerClick}
+													onClick={this.getClickHandler(
+														()=> this.handleMarkerClick(location),
+														()=> this.handleMarkerDblClick(location))
+													}
 													preserveMarkerAspect={true}
 												>
 													<circle
