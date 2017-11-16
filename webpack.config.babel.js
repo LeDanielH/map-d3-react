@@ -1,7 +1,7 @@
 const prod = process.argv.indexOf('-p') !== -1;
 
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const HtmlWebpackInlineSourcePlugin = require('html-webpack-inline-source-plugin');
+// const HtmlWebpackInlineSourcePlugin = require('html-webpack-inline-source-plugin');
 const HtmlWebpackHarddiskPlugin = require('html-webpack-harddisk-plugin');
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
 
@@ -90,7 +90,7 @@ const config = {
 		new HtmlWebpackPlugin({
 			title: 'index.html',
 			template: './src/index.pug',
-			inlineSource: prod ? '.(js|css)$' : '',
+			// inlineSource: prod ? '.(js|css)$' : '',
 			alwaysWriteToDisk: true
 		}),
 		new HtmlWebpackHarddiskPlugin(),
@@ -118,7 +118,7 @@ if (prod) {
 			'NODE_ENV': `"production"`
 		}
 	}));
-	config.plugins.push(new HtmlWebpackInlineSourcePlugin());
+	// config.plugins.push(new HtmlWebpackInlineSourcePlugin());
 
 } else {
 	config.plugins.push(new webpack.DefinePlugin({
