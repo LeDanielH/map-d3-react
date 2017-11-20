@@ -1,6 +1,11 @@
 import React, { Component } from "react";
-import { geoPath } from 'd3-geo';
-import { geoMiller } from 'd3-geo-projection';
+
+import {
+	projectionForCentroids,
+	pathForCentroids,
+	getCentroid
+} from "../options/d3Options";
+
 import {
 	ComposableMap,
 	ZoomableGroup,
@@ -12,6 +17,8 @@ import {
 	Annotations,
 	Annotation
 } from "react-simple-maps";
+
+import { getClickHandler } from "../helpers";
 
 
 /* to add more custom projections directly from d3-geo-projections */
@@ -29,21 +36,7 @@ import mapOptions from '../options/mapOptions';
 // 	obj[key] = context(key);
 // });
 
-const projectionForCentroids = geoMiller() // same as the one for react-simple-maps
-	// making sure options stay the same as in react-simple-maps
-	.scale(mapOptions.projectionConfig.scale)
-	.translate([
-		mapOptions.projectionConfig.xOffset + mapOptions.width / 2,
-		mapOptions.projectionConfig.yOffset + mapOptions.height / 2
-	])
-	.rotate(mapOptions.projectionConfig.rotation)
-	.precision(mapOptions.projectionConfig.precision);
 
-const pathForCentroids = geoPath().projection(projectionForCentroids);
-
-function getCentroid(geoJsonObject) {
-	return projectionForCentroids.invert(pathForCentroids.centroid(geoJsonObject));
-}
 
 class Map extends Component {
 
@@ -54,7 +47,7 @@ class Map extends Component {
 			geographyPaths: [],
 			locations: [],
 			annotations: [],
-			projectionType: mapOptions.projections.miller,
+			projectionType: () => projectionForCentroids,
 			center: {
 				long: 0,
 				lat: 0
@@ -65,6 +58,7 @@ class Map extends Component {
 			latMin: -40,
 			activeAnnotation: null
 		};
+
 		this.handleMarkerClick = this.handleMarkerClick.bind(this);
 		this.handleCountryClick = this.handleCountryClick.bind(this);
 		this.handleCountryDblClick = this.handleCountryDblClick.bind(this);
@@ -72,9 +66,6 @@ class Map extends Component {
 		this.projection = this.projection.bind(this);
 		this.handleZoomIn = this.handleZoomIn.bind(this);
 		this.handleZoomOut = this.handleZoomOut.bind(this);
-		this.handleCountryMouseEnter = this.handleCountryMouseEnter.bind(this);
-		Map.handleCountryMouseLeave = Map.handleCountryMouseLeave.bind(this);
-		this.handleMoveEnd = this.handleMoveEnd.bind(this);
 	}
 
 	componentWillMount() {
@@ -82,14 +73,6 @@ class Map extends Component {
 		this.loadLocations();
 		this.loadAnnotations();
 		this.geoFindMe();
-	}
-
-	handleCountryMouseEnter(id) {
-		this.setState({ activeAnnotation: id })
-	}
-
-	static handleCountryMouseLeave(id) {
-		console.log('hiding annotation', id);
 	}
 
 	geoFindMe() {
@@ -159,83 +142,6 @@ class Map extends Component {
 		this.setState({ annotations: annotations });
 	}
 
-	// todo figure out how not to hard code these values
-	setBoundaries(zoom, longitude, latitude) {
-		const _this = this;
-		switch (zoom) {
-			case 1:
-				this.setState({
-					longMax: 15,
-					longMin: -15,
-					latMax: 40,
-					latMin: -40
-				}, () => _this.positionMap(longitude, latitude));
-				break;
-			case 2:
-				this.setState({
-					longMax: 92,
-					longMin: -92,
-					latMax: 65,
-					latMin: -65
-				}, () => _this.positionMap(longitude, latitude));
-				break;
-			case 4:
-				this.setState({
-					longMax: 135,
-					longMin: -135,
-					latMax: 80,
-					latMin: -80
-				}, () => _this.positionMap(longitude, latitude));
-				break;
-
-			case 8:
-				this.setState({
-					longMax: 154,
-					longMin: -154,
-					latMax: 86,
-					latMin: -86
-				}, () => _this.positionMap(longitude, latitude));
-				break;
-			case 16:
-				this.setState({
-					longMax: 164,
-					longMin: -164,
-					latMax: 88,
-					latMin: -88
-				}, () => _this.positionMap(longitude, latitude));
-				break;
-
-		}
-	}
-
-	handleMarkerClick(location) {
-		const _this = this;
-		const longitude = location.coordinates[0];
-		const latitude = location.coordinates[1];
-		const isLessThanMarkerFocus = this.state.zoom < mapOptions.zoomFocus;
-
-		if(isLessThanMarkerFocus) {
-			this.setState({
-				zoom: mapOptions.zoomFocus
-			}, () => _this.setBoundaries(mapOptions.zoomFocus, longitude, latitude));
-
-		}
-
-		this.setBoundaries(this.state.zoom, longitude, latitude);
-	}
-
-	handleMarkerDblClick(location) {
-		const _this = this;
-		const longitude = location.coordinates[0];
-		const latitude = location.coordinates[1];
-		const newZoom = this.state.zoom;
-		this.setState({
-			zoom: newZoom
-		}, () => _this.setBoundaries(newZoom, longitude, latitude));
-
-
-	}
-
 	positionMap(longitude, latitude) {
 
 		const longMin = this.state.longMin;
@@ -276,8 +182,81 @@ class Map extends Component {
 		});
 	}
 
+	// todo figure out how not to hard code these values for each zoom state
+	setBoundaries(zoom, longitude, latitude) {
+		switch (zoom) {
+			case 1:
+				this.setState({
+					longMax: 15,
+					longMin: -15,
+					latMax: 40,
+					latMin: -40
+				}, () => this.positionMap(longitude, latitude));
+				break;
+			case 2:
+				this.setState({
+					longMax: 92,
+					longMin: -92,
+					latMax: 65,
+					latMin: -65
+				}, () => this.positionMap(longitude, latitude));
+				break;
+			case 4:
+				this.setState({
+					longMax: 135,
+					longMin: -135,
+					latMax: 80,
+					latMin: -80
+				}, () => this.positionMap(longitude, latitude));
+				break;
+
+			case 8:
+				this.setState({
+					longMax: 154,
+					longMin: -154,
+					latMax: 86,
+					latMin: -86
+				}, () => this.positionMap(longitude, latitude));
+				break;
+			case 16:
+				this.setState({
+					longMax: 164,
+					longMin: -164,
+					latMax: 88,
+					latMin: -88
+				}, () => this.positionMap(longitude, latitude));
+				break;
+
+		}
+	}
+
+	handleMarkerClick(location) {
+		const longitude = location.coordinates[0];
+		const latitude = location.coordinates[1];
+		const isLessThanMarkerFocus = this.state.zoom < mapOptions.zoomFocus;
+
+		if(isLessThanMarkerFocus) {
+			this.setState({
+				zoom: mapOptions.zoomFocus
+			}, () => this.setBoundaries(mapOptions.zoomFocus, longitude, latitude));
+
+		}
+
+		this.setBoundaries(this.state.zoom, longitude, latitude);
+	}
+
+	handleMarkerDblClick(location) {
+		const longitude = location.coordinates[0];
+		const latitude = location.coordinates[1];
+		const newZoom = this.state.zoom;
+		this.setState({
+			zoom: newZoom
+		}, () => this.setBoundaries(newZoom, longitude, latitude));
+
+
+	}
+
 	handleCountryClick(id, center) {
-		const _this = this;
 		const longitude = center[0];
 		const latitude = center[1];
 		const minZoom = this.state.zoom <= mapOptions.zoomMin;
@@ -285,7 +264,7 @@ class Map extends Component {
 		if(minZoom) {
 			this.setState({
 				zoom: mapOptions.zoomCountryMin
-			}, () => _this.setBoundaries(mapOptions.zoomCountryMin, longitude, latitude));
+			}, () => this.setBoundaries(mapOptions.zoomCountryMin, longitude, latitude));
 
 		}
 		this.setState({activeAnnotation: id,});
@@ -293,30 +272,15 @@ class Map extends Component {
 	}
 
 	handleCountryDblClick(id, center) {
-		const _this = this;
 		const longitude = center[0];
 		const latitude = center[1];
 		const newZoom = this.state.zoom * 2;
 		this.setState({
 			activeAnnotation: id,
 			zoom: newZoom
-		}, () => _this.setBoundaries(newZoom, longitude, latitude));
+		}, () => this.setBoundaries(newZoom, longitude, latitude));
 
 
-	}
-
-	static handleMoveStart(newCenter) {
-		console.log("New center: ", newCenter)
-	}
-
-	handleMoveEnd(newCenter) {
-		console.log("New center: ", newCenter);
-		this.setState({
-			center: {
-				long: newCenter[0],
-				lat: newCenter[1]
-			}
-		})
 	}
 
 	handleZoomIn() {
@@ -334,7 +298,6 @@ class Map extends Component {
 	}
 
 	handleReset() { // returns world center, not current location
-		const _this = this;
 		this.setState({
 			zoom: mapOptions.zoomMin,
 			activeAnnotation: null,
@@ -342,23 +305,7 @@ class Map extends Component {
 				long: mapOptions.centerWorld.long,
 				lat: mapOptions.centerWorld.lat
 			}
-		}, () => _this.setBoundaries(mapOptions.zoomMin, mapOptions.centerWorld.long, mapOptions.centerWorld.lat));
-	}
-
-	getClickHandler(onClick, onDoubleClick, delay) {
-		let timeoutID = null;
-		delay = delay || mapOptions.dblClickDelay;
-		return function (event) {
-			if (!timeoutID) {
-				timeoutID = setTimeout(() => {
-					onClick(event);
-					timeoutID = null
-				}, delay);
-			} else {
-				timeoutID = clearTimeout(timeoutID);
-				onDoubleClick(event);
-			}
-		};
+		}, () => this.setBoundaries(mapOptions.zoomMin, mapOptions.centerWorld.long, mapOptions.centerWorld.lat));
 	}
 
 	setAnnotationActive(id) {
@@ -466,7 +413,7 @@ class Map extends Component {
 													projection={projection}
 													// onClick={() => this.handleCountryClick(geography.id, centroid)}
 													// onMouseEnter={() => this.handleCountryMouseEnter(geography.id)}
-													onClick={this.getClickHandler(
+													onClick={getClickHandler(
 														()=> this.handleCountryClick(geography.id, centroid),
 														()=> this.handleCountryDblClick(geography.id, centroid))
 													}
@@ -484,7 +431,7 @@ class Map extends Component {
 												<Marker
 													key={`location-${i}`}
 													marker={location}
-													onClick={this.getClickHandler(
+													onClick={getClickHandler(
 														()=> this.handleMarkerClick(location),
 														()=> this.handleMarkerDblClick(location))
 													}
