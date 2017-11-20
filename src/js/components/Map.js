@@ -73,78 +73,54 @@ class Map extends Component {
 	}
 
 	handleZoomIn() {
-		const isBiggerThanMax = this.state.zoom >= mapOptions.zoomMax;
-		if(isBiggerThanMax) return;
-		const newZoom = this.state.zoom * 2;
-		this.setState({
-				zoom: newZoom
-			}, () => this.setBoundaries(this.state.zoom, this.state.center.long, this.state.center.lat));
+		const {zoom, center} = this.state;
+		const {zoomMax} = mapOptions;
+		if(zoom >= zoomMax) return;
+		this.setState({zoom: zoom * 2}, () => this.setBoundaries(zoom, center.long, center.lat));
 	}
 
+	// todo handle zoomOut behaviour when focused on north or south
 	handleZoomOut() {
-		const isSmallerThanMin = this.state.zoom <= mapOptions.zoomMin;
-		if(isSmallerThanMin) return;
-		const newZoom = this.state.zoom / 2;
-		this.setState({
-			zoom: newZoom
-		}, () => this.setBoundaries(this.state.zoom, this.state.center.long, this.state.center.lat));
+		const {zoom, center} = this.state;
+		const {zoomMin} = mapOptions;
+		if(zoom <= zoomMin) return;
+		this.setState({ zoom: zoom / 2 }, () => this.setBoundaries(zoom, center.long, center.lat));
 	}
 
 	handleReset() { // returns world center, not current location
+		const {zoomMin, centerWorld} = mapOptions;
 		this.setState({
-			zoom: mapOptions.zoomMin,
+			zoom: zoomMin,
 			activeAnnotation: null,
 			center: {
-				long: mapOptions.centerWorld.long,
-				lat: mapOptions.centerWorld.lat
+				long: centerWorld.long,
+				lat: centerWorld.lat
 			}
-		}, () => this.setBoundaries(mapOptions.zoomMin, mapOptions.centerWorld.long, mapOptions.centerWorld.lat));
+		}, () => this.setBoundaries(zoomMin, centerWorld.long, centerWorld.lat));
 	}
 	handlePan(direction) {
-		const currentLat = this.state.center.lat;
-		const currentLong = this.state.center.long;
-		const currentLongMin = this.state.longMin;
-		const currentLongMax = this.state.longMax;
-		const currentLatMin = this.state.latMin;
-		const currentLatMax = this.state.latMax;
+
+		const { center, longMin, longMax, latMin, latMax } = this.state;
+		const currentLat = center.lat;
+		const currentLong = center.long;
 		const increment = 10;
 
 		switch (direction) {
 			case 'left':
-				if(currentLong < currentLongMin) return;
-				this.setState({
-					center: {
-						...this.state.center,
-						long: currentLong - increment,
-					}
-				});
+				if(currentLong < longMin) return;
+				this.setState({ center: { ...center, long: currentLong - increment }});
 				break;
 			case 'right':
-				if(currentLong > currentLongMax) return;
-				this.setState({
-					center: {
-						...this.state.center,
-						long: currentLong + increment,
-					}
-				});
+				if(currentLong > longMax) return;
+				this.setState({ center: { ...center, long: currentLong + increment }});
 				break;
 			case 'up':
-				if(currentLat > currentLatMax) return;
-				this.setState({
-					center: {
-						...this.state.center,
-						lat: currentLat + increment,
-					}
-				});
+				if(currentLat > latMax) return;
+				this.setState({ center: { ...center, lat: currentLat + increment }});
 				break;
 			case 'down':
-				if(currentLat < currentLatMin) return;
-				this.setState({
-					center: {
-						...this.state.center,
-						lat: currentLat - increment,
-					}
-				});
+				if(currentLat < latMin) return;
+				this.setState({center: { ...center, lat: currentLat - increment }});
 				break;
 			default:
 				console.log('no direction has been specified');
@@ -160,25 +136,23 @@ class Map extends Component {
 		}
 
 		function success(position) {
+			const {longitude, latitude} = position.coords;
+			const {zoomFocus} = mapOptions;
 			_this.setState({
-				center: {
-					long: position.coords.longitude,
-					lat: position.coords.latitude
-				},
-				zoom: mapOptions.zoomFocus
-			}, _this.setBoundaries(mapOptions.zoomFocus, position.coords.longitude, position.coords.latitude));
+				center: {long: longitude, lat: latitude},
+				zoom: zoomFocus
+			}, _this.setBoundaries(zoomFocus, longitude, latitude));
 
 		}
 
 		function error() {
 			console.log('unable to retrieve your location');
+			const {long, lat} = mapOptions.centerWorld;
+			const {zoomMin} = mapOptions;
 			_this.setState({
-				center: {
-					long: mapOptions.centerWorld.long,
-					lat: mapOptions.centerWorld.lat
-				},
-				zoom: mapOptions.zoomMin
-			}, _this.setBoundaries(mapOptions.zoomMin, mapOptions.centerWorld.long, mapOptions.centerWorld.lat));
+				center: { long: long, lat: lat},
+				zoom: zoomMin
+			}, _this.setBoundaries(zoomMin, long, lat));
 
 		}
 
@@ -220,10 +194,7 @@ class Map extends Component {
 
 	positionMap(longitude, latitude) {
 
-		const longMin = this.state.longMin;
-		const longMax = this.state.longMax;
-		const latMin = this.state.latMin;
-		const latMax = this.state.latMax;
+		const {longMin, longMax, latMin, latMax} = this.state;
 
 		const isLessThanLongMin = longitude < longMin;
 		const isMoreThanLongMax = longitude > longMax;
@@ -251,10 +222,7 @@ class Map extends Component {
 		}
 
 		this.setState({
-			center: {
-				long: getLongitude(),
-				lat: getLatitude()
-			}
+			center: {long: getLongitude(), lat: getLatitude()}
 		});
 	}
 
@@ -307,52 +275,44 @@ class Map extends Component {
 	}
 
 	handleMarkerClick(location) {
-		const longitude = location.coordinates[0];
-		const latitude = location.coordinates[1];
-		const isLessThenMarkerFocus = this.state.zoom < mapOptions.zoomFocus;
+		const [longitude, latitude] = [location.coordinates[0], location.coordinates[1]];
+		const {zoomFocus} = mapOptions;
+		const {zoom} = this.state;
+		const isLessThenMarkerFocus = zoom < zoomFocus;
 
 		if(isLessThenMarkerFocus) {
-			this.setState({
-				zoom: mapOptions.zoomFocus,
-			}, () => this.setBoundaries(mapOptions.zoomFocus, longitude, latitude));
+			this.setState({ zoom: zoomFocus }, () => this.setBoundaries(zoomFocus, longitude, latitude));
 		}
 
-		this.setState({
-			activeAnnotation: null
-		});
-
-		this.setBoundaries(this.state.zoom, longitude, latitude);
+		this.setState({ activeAnnotation: null });
+		this.setBoundaries(zoom, longitude, latitude);
 	}
 
 	handleMarkerDblClick(location) {
 		const longitude = location.coordinates[0];
 		const latitude = location.coordinates[1];
 		const newZoom = this.state.zoom;
-		this.setState({
-			zoom: newZoom
-		}, () => this.setBoundaries(newZoom, longitude, latitude));
-
+		this.setState({ zoom: newZoom }, () => this.setBoundaries(newZoom, longitude, latitude));
 	}
 
 	handleCountryClick(id, center) {
-		const longitude = center[0];
-		const latitude = center[1];
-		const minZoom = this.state.zoom <= mapOptions.zoomMin;
+		const [longitude, latitude] = [center[0], center[1]];
+		const {zoom} = this.state;
+		const {zoomMin, zoomCountryMin} = mapOptions;
+		const minZoom = zoom <= zoomMin;
 
 		if(minZoom) {
-			this.setState({
-				zoom: mapOptions.zoomCountryMin
-			}, () => this.setBoundaries(mapOptions.zoomCountryMin, longitude, latitude));
-
+			this.setState({ zoom: zoomCountryMin }, () => this.setBoundaries(zoomCountryMin, longitude, latitude));
 		}
-		this.setState({activeAnnotation: id,});
-		this.setBoundaries(this.state.zoom, longitude, latitude);
+
+		this.setState({ activeAnnotation: id });
+		this.setBoundaries(zoom, longitude, latitude);
 	}
 
 	handleCountryDblClick(id, center) {
-		const longitude = center[0];
-		const latitude = center[1];
-		const newZoom = this.state.zoom * 2;
+		const [longitude, latitude] = [center[0], center[1]];
+		const {zoom} = this.state;
+		const newZoom = zoom * 2;
 		this.setState({
 			activeAnnotation: id,
 			zoom: newZoom
@@ -463,6 +423,7 @@ class Map extends Component {
 							<Annotations>
 								{
 									this.state.annotations.map((annotation, i) => {
+										const {short, name} = annotation;
 											return (
 												<Annotation
 													key={`annotation-${i}`}
@@ -471,8 +432,8 @@ class Map extends Component {
 													dy={0}
 													strokeWidth={0}
 												>
-													<g className={`rsm-annotation-text ${this.setAnnotationActive(annotation.short)}`}>
-														<text>{annotation.name}</text>
+													<g className={`rsm-annotation-text ${this.setAnnotationActive(short)}`}>
+														<text>{name}</text>
 													</g>
 
 												</Annotation>
