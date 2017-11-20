@@ -326,6 +326,16 @@ class Map extends Component {
 		return isAnnotationActive ? 'active' : '';
 	}
 
+	getCenter() {
+		const {long, lat} = this.state.center;
+		return [long, lat];
+	}
+
+	getZoom() {
+		const {zoom} = this.state;
+		return zoom;
+	}
+
 	render() {
 		return (
 			<div className={'rsm-map'}>
@@ -349,8 +359,8 @@ class Map extends Component {
 						}}
 					>
 						<ZoomableGroup
-							center={[this.state.center.long, this.state.center.lat]}
-							zoom={this.state.zoom}
+							center={this.getCenter()}
+							zoom={this.getZoom()}
 							disablePanning={true}
 							// onMoveEnd={this.handleMoveEnd}
 						>
