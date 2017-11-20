@@ -22,8 +22,8 @@ const MapControls = (props) => {
 		<div className={"map__controls"}>
 			<div className="map__compass">
 				<div className={'map__zoom'}>
-					<div className={'map__zoom-btn'} onClick={handleZoomIn}>+</div>
-					<div className={'map__zoom-btn'} onClick={handleZoomOut}>-</div>
+					<div className={'map__zoom-btn'} onClick={handleZoomIn}><span>+</span></div>
+					<div className={'map__zoom-btn'} onClick={handleZoomOut}><span>-</span></div>
 				</div>
 				<div className={'map__pan'}>
 					<div className={'map__pan-btn'} onClick={() => handlePan('up')}/>
@@ -31,7 +31,7 @@ const MapControls = (props) => {
 					<div className={'map__pan-btn'} onClick={() => handlePan('down')}/>
 					<div className={'map__pan-btn'} onClick={() => handlePan('left')}/>
 				</div>
-				<div onClick={resetToCurrentLocation} className={'map__myplace'}></div>
+				<div onClick={resetToCurrentLocation} className={'map__myplace'} />
 			</div>
 
 			<div className="map__range">
@@ -56,7 +56,7 @@ const MapControls = (props) => {
 			</div>
 
 			<div className={"map__reset"}>
-				<button className={'map__reset-btn'} onClick={handleReset}>reset</button>
+				<button className={'map__reset-btn'} onClick={handleReset}></button>
 			</div>
 
 		</div>
