@@ -1,14 +1,28 @@
-$sz-controls: 100px;
-$sz-triangle: 8px;
+$sz-controls: 150px;
+$sz-control: 8px;
 $bw-controls: 1px;
-$triangle-transparent: $sz-triangle solid transparent;
-$triangle: $sz-triangle solid white;
+$triangle-transparent: $sz-control solid transparent;
+$triangle: $sz-control solid white;
 .map {
 
 	&__controls {
 		@include position(absolute, null 0 0 null);
 		@include size($sz-controls);
 		box-sizing: border-box;
+	}
+
+	&__compass {
+		position: relative;
+		@include size(110px);
+	}
+
+	&__myplace {
+		@include size($sz-control);
+		@include position(absolute, 50% null null 50%);
+		@include margin((-($sz-control/2)) null null (-($sz-control/2)));
+		background-color: white;
+		border-radius: $sz-control/2;
+		cursor: pointer;
 	}
 
 	&__zoom {
@@ -48,9 +62,9 @@ $triangle: $sz-triangle solid white;
 		border-radius: $sz-controls/2;
 		box-sizing: border-box;
 		&-btn {
-			@include size($sz-triangle * 2);
+			@include size($sz-control * 2);
 			//background-color: $c-marker;
-			border-radius: $sz-triangle;
+			border-radius: $sz-control;
 			cursor: pointer;
 
 			&:after {
@@ -60,7 +74,7 @@ $triangle: $sz-triangle solid white;
 
 			&:nth-of-type(1) {
 				@include position(absolute, ($bw-controls *2) null null 50%);
-				@include margin(null null null (-($sz-triangle)));
+				@include margin(null null null (-($sz-control)));
 				&:after {
 					border-left: $triangle-transparent;
 					border-right: $triangle-transparent;
@@ -71,7 +85,7 @@ $triangle: $sz-triangle solid white;
 
 			&:nth-of-type(2) {
 				@include position(absolute, 50% ($bw-controls *2) null null);
-				@include margin((-($sz-triangle)) null null null);
+				@include margin((-($sz-control)) null null null);
 				&:after {
 					border-top: $triangle-transparent;
 					border-bottom: $triangle-transparent;
@@ -82,7 +96,7 @@ $triangle: $sz-triangle solid white;
 
 			&:nth-of-type(3) {
 				@include position(absolute, null null ($bw-controls *2) 50%);
-				@include margin(null null null (-($sz-triangle)));
+				@include margin(null null null (-($sz-control)));
 				&:after {
 					border-left: $triangle-transparent;
 					border-right: $triangle-transparent;
@@ -93,13 +107,22 @@ $triangle: $sz-triangle solid white;
 
 			&:nth-of-type(4) {
 				@include position(absolute, 50% null null ($bw-controls *2));
-				@include margin((-($sz-triangle)) null null null);
+				@include margin((-($sz-control)) null null null);
 				&:after {
 					border-top: $triangle-transparent;
 					border-bottom: $triangle-transparent;
 					border-right: $triangle;
 					@include position(absolute, null null null $bw-controls * 2);
 				}
+			}
+		}
+	}
+	&__range {
+		@include position(absolute, null $base-spacing $base-spacing null);
+		&-wrapper {
+			&:first-of-type {
+				transform-origin: bottom right;
+				transform: rotate(270deg) translate(100%, 0);
 			}
 		}
 	}
