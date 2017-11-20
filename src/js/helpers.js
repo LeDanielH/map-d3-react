@@ -1,3 +1,5 @@
+import mapOptions from './options/mapOptions';
+
 export function responsivefy(svg) {
     // get container + svg aspect ratio
     const container = d3.select(svg.node().parentNode),
@@ -20,4 +22,20 @@ export function responsivefy(svg) {
         svg.attr("width", targetWidth);
         svg.attr("height", Math.round(targetWidth / aspect));
     }
+}
+
+export function getClickHandler(onClick, onDoubleClick, delay) {
+	let timeoutID = null;
+	delay = delay || mapOptions.dblClickDelay;
+	return function (event) {
+		if (!timeoutID) {
+			timeoutID = setTimeout(() => {
+				onClick(event);
+				timeoutID = null
+			}, delay);
+		} else {
+			timeoutID = clearTimeout(timeoutID);
+			onDoubleClick(event);
+		}
+	};
 }
