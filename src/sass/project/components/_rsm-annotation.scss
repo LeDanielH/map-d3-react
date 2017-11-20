@@ -1,0 +1,19 @@
+.rsm {
+	&-annotation {
+		&-text {
+			display: inline-block;
+			@include will-change(transform, opacity);
+			@extend %anim-base;
+			fill: white;
+			font-size: 4px;
+			transform: scale(0);
+			opacity: 0;
+			&.active {
+				transform: scale(1);
+				opacity: 1;
+			}
+
+		}
+
+	}
+}

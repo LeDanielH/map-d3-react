@@ -1,1 +1,6 @@
-@import "rsm";
+@import "rsm-base";
+@import "rsm-geographies";
+@import "rsm-annotation";
+@import "rsm-marker";
+@import "rsm-graticule";
+@import "map-controls";

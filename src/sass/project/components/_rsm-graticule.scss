@@ -1,0 +1,9 @@
+.rsm {
+	&-graticule {
+		path {
+			stroke: lighten($c-country, 20%);
+			stroke-width: 0.2px;
+		}
+
+	}
+}
