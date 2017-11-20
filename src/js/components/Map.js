@@ -75,16 +75,18 @@ class Map extends Component {
 	handleZoomIn() {
 		const {zoom, center: {long, lat}} = this.state;
 		const {zoomMax} = mapOptions;
+		const newZoom = zoom * 2;
 		if(zoom >= zoomMax) return;
-		this.setState({zoom: zoom * 2}, () => this.setBoundaries(zoom, long, lat));
+		this.setState({zoom: newZoom}, () => this.setBoundaries(newZoom, long, lat));
 	}
 
 	// todo handle zoomOut behaviour when focused on north or south
 	handleZoomOut() {
 		const {zoom, center:{long, lat}} = this.state;
 		const {zoomMin} = mapOptions;
+		const newZoom = zoom/2;
 		if(zoom <= zoomMin) return;
-		this.setState({ zoom: zoom / 2 }, () => this.setBoundaries(zoom, long, lat));
+		this.setState({ zoom: newZoom }, () => this.setBoundaries(newZoom, long, lat));
 	}
 
 	handleReset() { // returns world center, not current location
@@ -100,25 +102,39 @@ class Map extends Component {
 	}
 	handlePan(direction) {
 
-		const { center: {lat, long}, longMin, longMax, latMin, latMax } = this.state;
+		const { center, center: {lat, long}, longMin, longMax, latMin, latMax } = this.state;
 		const { panIncrement } = mapOptions;
 
 		switch (direction) {
 			case 'left':
-				if(currentLong < longMin) return;
-				this.setState({ center: { ...center, long: long - panIncrement }});
+				if((long - panIncrement) <= longMin) {
+					this.setState({ center: { ...center, long: longMin }});
+				} else {
+					this.setState({ center: { ...center, long: long - panIncrement }});
+				}
 				break;
 			case 'right':
-				if(currentLong > longMax) return;
-				this.setState({ center: { ...center, long: long + panIncrement }});
+				if((long + panIncrement) >= longMax) {
+					this.setState({ center: { ...center, long: longMax }});
+				} else {
+					this.setState({ center: { ...center, long: long + panIncrement }});
+				}
+
 				break;
 			case 'up':
-				if(currentLat > latMax) return;
-				this.setState({ center: { ...center, lat: lat + panIncrement }});
+				if((lat + panIncrement) >= latMax) {
+					this.setState({ center: { ...center, lat: latMax }});
+				} else {
+					this.setState({ center: { ...center, lat: lat + panIncrement }});
+				}
+
 				break;
 			case 'down':
-				if(currentLat < latMin) return;
-				this.setState({center: { ...center, lat: lat - panIncrement }});
+				if((lat - panIncrement) <= latMin) {
+					this.setState({center: { ...center, lat: latMin }});
+				} else {
+					this.setState({center: { ...center, lat: lat - panIncrement }});
+				}
 				break;
 			default:
 				console.log('no direction has been specified');
@@ -228,10 +244,10 @@ class Map extends Component {
 		switch (zoom) {
 			case 1:
 				this.setState({
-					longMax: 15,
-					longMin: -15,
-					latMax: 40,
-					latMin: -40
+					longMax: 5,
+					longMin: -5,
+					latMax: 30,
+					latMin: -30
 				}, () => this.positionMap(longitude, latitude));
 				break;
 			case 2:
@@ -253,16 +269,16 @@ class Map extends Component {
 
 			case 8:
 				this.setState({
-					longMax: 154,
-					longMin: -154,
+					longMax: 158,
+					longMin: -158,
 					latMax: 86,
 					latMin: -86
 				}, () => this.positionMap(longitude, latitude));
 				break;
 			case 16:
 				this.setState({
-					longMax: 164,
-					longMin: -164,
+					longMax: 169,
+					longMin: -169,
 					latMax: 88,
 					latMin: -88
 				}, () => this.positionMap(longitude, latitude));
@@ -333,14 +349,13 @@ class Map extends Component {
 		return (
 			<div className={'rsm'}>
 
-				<MapControls
-					handleZoomIn={this.handleZoomIn}
-					handleZoomOut={this.handleZoomOut}
-					handlePan={this.handlePan}
-					handleReset={this.handleReset}
-				/>
-
 				<div style={mapOptions.wrapperStyles} className={'rsm-map__wrapper'}>
+					<MapControls
+						handleZoomIn={this.handleZoomIn}
+						handleZoomOut={this.handleZoomOut}
+						handlePan={this.handlePan}
+						handleReset={this.handleReset}
+					/>
 					<ComposableMap
 						width={mapOptions.width}
 						height={mapOptions.height}
@@ -434,7 +449,6 @@ class Map extends Component {
 													<g className={`rsm-annotation-text ${this.setAnnotationActive(short)}`}>
 														<text>{name}</text>
 													</g>
-
 												</Annotation>
 											)
 										}
