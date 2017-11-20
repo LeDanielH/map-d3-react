@@ -229,14 +229,17 @@ class Map extends Component {
 	handleMarkerClick(location) {
 		const longitude = location.coordinates[0];
 		const latitude = location.coordinates[1];
-		const isLessThanMarkerFocus = this.state.zoom < mapOptions.zoomFocus;
+		const isLessThenMarkerFocus = this.state.zoom < mapOptions.zoomFocus;
 
-		if(isLessThanMarkerFocus) {
+		if(isLessThenMarkerFocus) {
 			this.setState({
-				zoom: mapOptions.zoomFocus
+				zoom: mapOptions.zoomFocus,
 			}, () => this.setBoundaries(mapOptions.zoomFocus, longitude, latitude));
-
 		}
+
+		this.setState({
+			activeAnnotation: null
+		});
 
 		this.setBoundaries(this.state.zoom, longitude, latitude);
 	}
