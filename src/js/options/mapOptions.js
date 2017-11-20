@@ -7,6 +7,7 @@ const mapOptions = {
 	zoomFocus: 4,
 	zoomBigCountry: 2,
 	dblClickDelay: 250,
+	panIncrement: 10,
 
 	centerWorld: {
 		long: 0,
