@@ -73,54 +73,52 @@ class Map extends Component {
 	}
 
 	handleZoomIn() {
-		const {zoom, center} = this.state;
+		const {zoom, center: {long, lat}} = this.state;
 		const {zoomMax} = mapOptions;
 		if(zoom >= zoomMax) return;
-		this.setState({zoom: zoom * 2}, () => this.setBoundaries(zoom, center.long, center.lat));
+		this.setState({zoom: zoom * 2}, () => this.setBoundaries(zoom, long, lat));
 	}
 
 	// todo handle zoomOut behaviour when focused on north or south
 	handleZoomOut() {
-		const {zoom, center} = this.state;
+		const {zoom, center:{long, lat}} = this.state;
 		const {zoomMin} = mapOptions;
 		if(zoom <= zoomMin) return;
-		this.setState({ zoom: zoom / 2 }, () => this.setBoundaries(zoom, center.long, center.lat));
+		this.setState({ zoom: zoom / 2 }, () => this.setBoundaries(zoom, long, lat));
 	}
 
 	handleReset() { // returns world center, not current location
-		const {zoomMin, centerWorld} = mapOptions;
+		const {zoomMin, centerWorld: {long, lat}} = mapOptions;
 		this.setState({
 			zoom: zoomMin,
 			activeAnnotation: null,
 			center: {
-				long: centerWorld.long,
-				lat: centerWorld.lat
+				long: long,
+				lat: lat
 			}
-		}, () => this.setBoundaries(zoomMin, centerWorld.long, centerWorld.lat));
+		}, () => this.setBoundaries(zoomMin, long, lat));
 	}
 	handlePan(direction) {
 
-		const { center, longMin, longMax, latMin, latMax } = this.state;
-		const currentLat = center.lat;
-		const currentLong = center.long;
-		const increment = 10;
+		const { center: {lat, long}, longMin, longMax, latMin, latMax } = this.state;
+		const { panIncrement } = mapOptions;
 
 		switch (direction) {
 			case 'left':
 				if(currentLong < longMin) return;
-				this.setState({ center: { ...center, long: currentLong - increment }});
+				this.setState({ center: { ...center, long: long - panIncrement }});
 				break;
 			case 'right':
 				if(currentLong > longMax) return;
-				this.setState({ center: { ...center, long: currentLong + increment }});
+				this.setState({ center: { ...center, long: long + panIncrement }});
 				break;
 			case 'up':
 				if(currentLat > latMax) return;
-				this.setState({ center: { ...center, lat: currentLat + increment }});
+				this.setState({ center: { ...center, lat: lat + panIncrement }});
 				break;
 			case 'down':
 				if(currentLat < latMin) return;
-				this.setState({center: { ...center, lat: currentLat - increment }});
+				this.setState({center: { ...center, lat: lat - panIncrement }});
 				break;
 			default:
 				console.log('no direction has been specified');
@@ -147,8 +145,7 @@ class Map extends Component {
 
 		function error() {
 			console.log('unable to retrieve your location');
-			const {long, lat} = mapOptions.centerWorld;
-			const {zoomMin} = mapOptions;
+			const {zoomMin, centerWorld: {long, lat}} = mapOptions;
 			_this.setState({
 				center: { long: long, lat: lat},
 				zoom: zoomMin
@@ -289,9 +286,8 @@ class Map extends Component {
 	}
 
 	handleMarkerDblClick(location) {
-		const longitude = location.coordinates[0];
-		const latitude = location.coordinates[1];
-		const newZoom = this.state.zoom;
+		const [longitude, latitude] = [location.coordinates[0], location.coordinates[1]];
+		const newZoom = this.state.zoom * 2;
 		this.setState({ zoom: newZoom }, () => this.setBoundaries(newZoom, longitude, latitude));
 	}
 
@@ -311,14 +307,11 @@ class Map extends Component {
 
 	handleCountryDblClick(id, center) {
 		const [longitude, latitude] = [center[0], center[1]];
-		const {zoom} = this.state;
-		const newZoom = zoom * 2;
+		const newZoom = this.state.zoom * 2;
 		this.setState({
 			activeAnnotation: id,
 			zoom: newZoom
 		}, () => this.setBoundaries(newZoom, longitude, latitude));
-
-
 	}
 
 	setAnnotationActive(id) {
@@ -338,7 +331,7 @@ class Map extends Component {
 
 	render() {
 		return (
-			<div className={'rsm-map'}>
+			<div className={'rsm'}>
 
 				<MapControls
 					handleZoomIn={this.handleZoomIn}
@@ -387,8 +380,6 @@ class Map extends Component {
 													round
 													geography={geography}
 													projection={projection}
-													// onClick={() => this.handleCountryClick(geography.id, centroid)}
-													// onMouseEnter={() => this.handleCountryMouseEnter(geography.id)}
 													onClick={getClickHandler(
 														()=> this.handleCountryClick(geography.id, centroid),
 														()=> this.handleCountryDblClick(geography.id, centroid))
@@ -425,9 +416,7 @@ class Map extends Component {
 												</Marker>
 											)
 										}
-									}
-
-									)
+									})
 								}
 							</Markers>
 							<Annotations>
@@ -449,7 +438,6 @@ class Map extends Component {
 												</Annotation>
 											)
 										}
-
 									)
 								}
 							</Annotations>
@@ -464,7 +452,6 @@ class Map extends Component {
 			</div>
 		)
 	}
-
 }
 
 export default Map;
