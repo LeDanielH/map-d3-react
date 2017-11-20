@@ -1,32 +1,24 @@
-import React, { Component } from 'react';
-import mapOptions from '../options/mapOptions';
+import React from 'react';
 
-
-class MapControls extends Component {
-	constructor() {
-		super()
-	}
-
-	render() {
-		const {handleZoomIn, handleZoomOut, handlePan, handleReset} = this.props;
-		return (
-			<div className={"rsm-controls"}>
-				<div className={'rsm-controls__zoom'}>
-					<div onClick={handleZoomIn}>zoom in</div>
-					<div onClick={handleZoomOut}>zoom out</div>
-				</div>
-				<div className={'rsm-controls__pan'}>
-					<div onClick={() => handlePan('up')}>up</div>
-					<div onClick={() => handlePan('right')}>right</div>
-					<div onClick={() => handlePan('down')}>bottom</div>
-					<div onClick={() => handlePan('left')}>left</div>
-				</div>
-				<div className={"rsm-controls__reset"}>
-					<div onClick={handleReset}>reset</div>
-				</div>
+const MapControls = (props) => {
+	const {handleZoomIn, handleZoomOut, handlePan, handleReset} = props;
+	return (
+		<div className={"map__controls"}>
+			<div className={'map__zoom'}>
+				<div className={'map__controls-btn'} onClick={handleZoomIn}>zoom in</div>
+				<div className={'map__controls-btn'} onClick={handleZoomOut}>zoom out</div>
 			</div>
-		)
-	}
-}
+			<div className={'map__pan'}>
+				<div className={'map__controls-btn'} onClick={() => handlePan('up')}>up</div>
+				<div className={'map__controls-btn'} onClick={() => handlePan('right')}>right</div>
+				<div className={'map__controls-btn'} onClick={() => handlePan('down')}>bottom</div>
+				<div className={'map__controls-btn'} onClick={() => handlePan('left')}>left</div>
+			</div>
+			<div className={"map__reset"}>
+				<div className={'map__controls-btn'} onClick={handleReset}>reset</div>
+			</div>
+		</div>
+	)
+};
 
 export default MapControls;
