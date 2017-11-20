@@ -1,8 +1,10 @@
 $sz-controls: 150px;
 $sz-control: 8px;
+$sz-compass: 110px;
 $bw-controls: 1px;
 $triangle-transparent: $sz-control solid transparent;
 $triangle: $sz-control solid white;
+$triangle-hover: $sz-control solid $c-marker;
 .map {
 
 	&__controls {
@@ -13,16 +15,45 @@ $triangle: $sz-control solid white;
 
 	&__compass {
 		position: relative;
-		@include size(110px);
+		@include size($sz-compass);
+		border-radius: 50%;
+		background-color: rgba(255, 255, 255, 0.2);
 	}
 
 	&__myplace {
-		@include size($sz-control);
+		$circle-size: $sz-control * 2;
+		@include size($circle-size);
 		@include position(absolute, 50% null null 50%);
-		@include margin((-($sz-control/2)) null null (-($sz-control/2)));
-		background-color: white;
-		border-radius: $sz-control/2;
+		transform: translate(-50%, -50%);
+		background-color: transparent;
+		border-radius: 50%;
 		cursor: pointer;
+		@include will-change(border, background-color);
+		@extend %anim-base;
+		//transition-duration: $tr-duration/2;
+		border: 1px solid white;
+		box-sizing: content-box;
+		//background-clip: padding-box;
+
+		&:after {
+			@include size($sz-control);
+			@include position(absolute, 50% null null 50%);
+			content: '';
+			display: block;
+			@include margin((-($sz-control/2)) null null (-($sz-control/2)));
+			background-color: white;
+			border-radius: 50%;
+			@include will-change(transform, background-color);
+			@extend %anim-base;
+		}
+		&:hover {
+			border: 1px solid $c-marker;
+			background-color: rgba(255, 255, 255, 0.9);
+			&:after {
+				transform: rotate3d(1, 0, 0, 180deg);
+				background-color: $c-marker;
+			}
+		}
 	}
 
 	&__zoom {
@@ -44,7 +75,6 @@ $triangle: $sz-control solid white;
 			text-align: center;
 			width: 100%;
 			cursor: pointer;
-			font-size: 16px;
 			&:first-of-type {
 
 			}
@@ -52,13 +82,32 @@ $triangle: $sz-control solid white;
 			&:last-of-type {
 
 			}
+			span {
+				display: inline-block;
+				@include will-change(color, transform, background-color, border);
+				@extend %anim-base;
+				background-color: transparent;
+				line-height: $sz-control * 2;
+				@include size($sz-control * 2);
+				font-size: $sz-control*2;
+				border-radius: 50%;
+				border: 1px solid transparent;
+				box-sizing: content-box;
+			}
+			&:hover {
+				span {
+					//transform: rotate3d(1, 0, 0, 180deg);
+					color: $c-marker;
+					background-color: white;
+					border: 1px solid $c-marker
+				}
+			}
 		}
 	}
 
 	&__pan {
-		@include size($sz-controls);
+		@include size($sz-compass);
 		overflow: hidden;
-		//border: 2px solid white;
 		border-radius: $sz-controls/2;
 		box-sizing: border-box;
 		&-btn {
@@ -68,8 +117,17 @@ $triangle: $sz-control solid white;
 			cursor: pointer;
 
 			&:after {
+				transform: scale(0.8);
 				content: '';
 				display: block;
+				@include will-change(border, transform);
+				@extend %anim-base;
+			}
+
+			&:hover {
+				&:after {
+					transform: scale(1);
+				}
 			}
 
 			&:nth-of-type(1) {
@@ -80,6 +138,11 @@ $triangle: $sz-control solid white;
 					border-right: $triangle-transparent;
 					border-bottom: $triangle;
 					@include position(absolute, $bw-controls * 2 null null null);
+				}
+				&:hover {
+					&:after {
+						border-bottom: $triangle-hover;
+					}
 				}
 			}
 
@@ -92,6 +155,11 @@ $triangle: $sz-control solid white;
 					border-left: $triangle;
 					@include position(absolute, null $bw-controls * 2 null null);
 				}
+				&:hover {
+					&:after {
+						border-left: $triangle-hover;
+					}
+				}
 			}
 
 			&:nth-of-type(3) {
@@ -103,6 +171,11 @@ $triangle: $sz-control solid white;
 					border-top: $triangle;
 					@include position(absolute, null null $bw-controls * 2 null);
 				}
+				&:hover {
+					&:after {
+						border-top: $triangle-hover;
+					}
+				}
 			}
 
 			&:nth-of-type(4) {
@@ -113,6 +186,11 @@ $triangle: $sz-control solid white;
 					border-bottom: $triangle-transparent;
 					border-right: $triangle;
 					@include position(absolute, null null null $bw-controls * 2);
+				}
+				&:hover {
+					&:after {
+						border-right: $triangle-hover;
+					}
 				}
 			}
 		}
