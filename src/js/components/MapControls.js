@@ -5,17 +5,17 @@ const MapControls = (props) => {
 	return (
 		<div className={"map__controls"}>
 			<div className={'map__zoom'}>
-				<div className={'map__controls-btn'} onClick={handleZoomIn}>zoom in</div>
-				<div className={'map__controls-btn'} onClick={handleZoomOut}>zoom out</div>
+				<div className={'map__zoom-btn'} onClick={handleZoomIn}>+</div>
+				<div className={'map__zoom-btn'} onClick={handleZoomOut}>-</div>
 			</div>
 			<div className={'map__pan'}>
-				<div className={'map__controls-btn'} onClick={() => handlePan('up')}>up</div>
-				<div className={'map__controls-btn'} onClick={() => handlePan('right')}>right</div>
-				<div className={'map__controls-btn'} onClick={() => handlePan('down')}>bottom</div>
-				<div className={'map__controls-btn'} onClick={() => handlePan('left')}>left</div>
+				<div className={'map__pan-btn'} onClick={() => handlePan('up')}/>
+				<div className={'map__pan-btn'} onClick={() => handlePan('right')}/>
+				<div className={'map__pan-btn'} onClick={() => handlePan('down')}/>
+				<div className={'map__pan-btn'} onClick={() => handlePan('left')}/>
 			</div>
 			<div className={"map__reset"}>
-				<div className={'map__controls-btn'} onClick={handleReset}>reset</div>
+				<div className={'map__reset-btn'} onClick={handleReset}>reset</div>
 			</div>
 		</div>
 	)
