@@ -57,12 +57,19 @@ class Map extends Component {
 			longMin: -20,
 			latMax: 40,
 			latMin: -40,
-			activeAnnotation: null
+			activeAnnotation: null,
+			mapLoading: true,
+			yourLocation: {
+				lat: 0,
+				long: 0,
+			}
 		};
 		this.handleReset = this.handleReset.bind(this);
 		this.handleZoomIn = this.handleZoomIn.bind(this);
 		this.handleZoomOut = this.handleZoomOut.bind(this);
 		this.handlePan = this.handlePan.bind(this);
+		this.handleRange = this.handleRange.bind(this);
+		this.resetToCurrentLocation = this.resetToCurrentLocation.bind(this);
 	}
 
 	componentWillMount() {
@@ -89,6 +96,15 @@ class Map extends Component {
 		this.setState({ zoom: newZoom }, () => this.setBoundaries(newZoom, long, lat));
 	}
 
+	handleRange(event, coordType) {
+		const { center } = this.state;
+		if(coordType === 'lat') {
+			this.setState({ center: { ...center, lat: event.target.value}})
+		} else if (coordType === 'long') {
+			this.setState({ center: { ...center, long: event.target.value}})
+		}
+	}
+
 	handleReset() { // returns world center, not current location
 		const {zoomMin, centerWorld: {long, lat}} = mapOptions;
 		this.setState({
@@ -100,6 +116,7 @@ class Map extends Component {
 			}
 		}, () => this.setBoundaries(zoomMin, long, lat));
 	}
+
 	handlePan(direction) {
 
 		const { center, center: {lat, long}, longMin, longMax, latMin, latMax } = this.state;
@@ -141,6 +158,19 @@ class Map extends Component {
 		}
 	}
 
+	resetToCurrentLocation() {
+		const {yourLocation: {long, lat}} = this.state;
+		if (long === null || lat === null) {
+			alert('Your current location is not available.');
+		} else {
+			const {zoomFocus} = mapOptions;
+			this.setState({
+				center: { long: long, lat: lat},
+				zoom: zoomFocus},
+				this.setBoundaries(zoomFocus, long, lat))
+		}
+	}
+
 	geoFindMe() {
 		const _this = this;
 
@@ -154,7 +184,12 @@ class Map extends Component {
 			const {zoomFocus} = mapOptions;
 			_this.setState({
 				center: {long: longitude, lat: latitude},
-				zoom: zoomFocus
+				zoom: zoomFocus,
+				mapLoading: false,
+				yourLocation: {
+					long: longitude,
+					lat: latitude
+				}
 			}, _this.setBoundaries(zoomFocus, longitude, latitude));
 
 		}
@@ -164,7 +199,8 @@ class Map extends Component {
 			const {zoomMin, centerWorld: {long, lat}} = mapOptions;
 			_this.setState({
 				center: { long: long, lat: lat},
-				zoom: zoomMin
+				zoom: zoomMin,
+				mapLoading: false,
 			}, _this.setBoundaries(zoomMin, long, lat));
 
 		}
@@ -330,6 +366,11 @@ class Map extends Component {
 		}, () => this.setBoundaries(newZoom, longitude, latitude));
 	}
 
+	handleLoading() {
+		const isMapLoading = this.state.mapLoading === true;
+		return isMapLoading ? 'loading' : ''
+	}
+
 	setAnnotationActive(id) {
 		const isAnnotationActive = this.state.activeAnnotation === id;
 		return isAnnotationActive ? 'active' : '';
@@ -349,12 +390,24 @@ class Map extends Component {
 		return (
 			<div className={'rsm'}>
 
-				<div style={mapOptions.wrapperStyles} className={'rsm-map__wrapper'}>
+				<div style={mapOptions.wrapperStyles} className={`rsm-map__wrapper ${this.handleLoading()}`}>
 					<MapControls
+
 						handleZoomIn={this.handleZoomIn}
 						handleZoomOut={this.handleZoomOut}
 						handlePan={this.handlePan}
 						handleReset={this.handleReset}
+						handleRange={this.handleRange}
+						resetToCurrentLocation={this.resetToCurrentLocation}
+
+
+						latMin={this.state.latMin}
+						latMax={this.state.latMax}
+						longMin={this.state.longMin}
+						longMax={this.state.longMax}
+						lat={this.state.center.lat}
+						long={this.state.center.long}
+
 					/>
 					<ComposableMap
 						width={mapOptions.width}
