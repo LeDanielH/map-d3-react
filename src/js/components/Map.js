@@ -19,6 +19,7 @@ import {
 } from "react-simple-maps";
 
 import { getClickHandler } from "../helpers";
+import MapControls from './MapControls';
 
 
 /* to add more custom projections directly from d3-geo-projections */
@@ -58,10 +59,10 @@ class Map extends Component {
 			latMin: -40,
 			activeAnnotation: null
 		};
-
 		this.handleReset = this.handleReset.bind(this);
 		this.handleZoomIn = this.handleZoomIn.bind(this);
 		this.handleZoomOut = this.handleZoomOut.bind(this);
+		this.pan = this.pan.bind(this);
 	}
 
 	componentWillMount() {
@@ -69,6 +70,74 @@ class Map extends Component {
 		this.loadLocations();
 		this.loadAnnotations();
 		this.geoFindMe();
+	}
+
+	handleZoomIn() {
+		const isBiggerThanMax = this.state.zoom >= mapOptions.zoomMax;
+		if(isBiggerThanMax) return;
+		const newZoom = this.state.zoom * 2;
+		this.setState({ zoom: newZoom });
+	}
+
+	handleZoomOut() {
+		const isSmallerThanMin = this.state.zoom <= mapOptions.zoomMin;
+		if(isSmallerThanMin) return;
+		const newZoom = this.state.zoom / 2;
+		this.setState({ zoom: newZoom });
+	}
+
+	handleReset() { // returns world center, not current location
+		this.setState({
+			zoom: mapOptions.zoomMin,
+			activeAnnotation: null,
+			center: {
+				long: mapOptions.centerWorld.long,
+				lat: mapOptions.centerWorld.lat
+			}
+		}, () => this.setBoundaries(mapOptions.zoomMin, mapOptions.centerWorld.long, mapOptions.centerWorld.lat));
+	}
+	pan(direction) {
+		const currentLat = this.state.center.lat;
+		const currentLong = this.state.center.long;
+		const increment = 10;
+
+		switch (direction) {
+			case 'left':
+				this.setState({
+					center: {
+						...this.state.center,
+						long: currentLong - increment,
+					}
+				});
+				break;
+			case 'right':
+				this.setState({
+					center: {
+						...this.state.center,
+						long: currentLong + increment,
+					}
+				});
+				break;
+			case 'up':
+				this.setState({
+					center: {
+						...this.state.center,
+						lat: currentLat + increment,
+					}
+				});
+				break;
+			case 'down':
+				this.setState({
+					center: {
+						...this.state.center,
+						lat: currentLat - increment,
+					}
+				});
+				break;
+			default:
+				console.log('no direction has been specified');
+		}
+
 	}
 
 	geoFindMe() {
@@ -252,7 +321,6 @@ class Map extends Component {
 			zoom: newZoom
 		}, () => this.setBoundaries(newZoom, longitude, latitude));
 
-
 	}
 
 	handleCountryClick(id, center) {
@@ -282,94 +350,22 @@ class Map extends Component {
 
 	}
 
-	handleZoomIn() {
-		const isBiggerThanMax = this.state.zoom >= mapOptions.zoomMax;
-		if(isBiggerThanMax) return;
-		const newZoom = this.state.zoom * 2;
-		this.setState({ zoom: newZoom });
-	}
-
-	handleZoomOut() {
-		const isSmallerThanMin = this.state.zoom <= mapOptions.zoomMin;
-		if(isSmallerThanMin) return;
-		const newZoom = this.state.zoom / 2;
-		this.setState({ zoom: newZoom });
-	}
-
-	handleReset() { // returns world center, not current location
-		this.setState({
-			zoom: mapOptions.zoomMin,
-			activeAnnotation: null,
-			center: {
-				long: mapOptions.centerWorld.long,
-				lat: mapOptions.centerWorld.lat
-			}
-		}, () => this.setBoundaries(mapOptions.zoomMin, mapOptions.centerWorld.long, mapOptions.centerWorld.lat));
-	}
-
 	setAnnotationActive(id) {
 		const isAnnotationActive = this.state.activeAnnotation === id;
 		return isAnnotationActive ? 'active' : '';
 	}
 
-	pan(direction) {
-		const currentLat = this.state.center.lat;
-		const currentLong = this.state.center.long;
-		const increment = 10;
-
-		switch (direction) {
-			case 'left':
-				this.setState({
-					center: {
-						...this.state.center,
-						long: currentLong - increment,
-					}
-				});
-				break;
-			case 'right':
-				this.setState({
-					center: {
-						...this.state.center,
-						long: currentLong + increment,
-					}
-				});
-				break;
-			case 'up':
-				this.setState({
-					center: {
-						...this.state.center,
-						lat: currentLat + increment,
-					}
-				});
-				break;
-			case 'down':
-				this.setState({
-					center: {
-						...this.state.center,
-						lat: currentLat - increment,
-					}
-				});
-				break;
-			default:
-				console.log('no direction has been specified');
-		}
-
-	}
-
 	render() {
 		return (
 			<div>
-				<div>
-					<button onClick={this.handleReset}>reset</button>
-					<button onClick={this.handleZoomIn}>zoom in</button>
-					<button onClick={this.handleZoomOut}>zoom out</button>
-				</div>
-				<div>
-					<button onClick={() => this.pan('up')}>up</button>
-					<button onClick={() => this.pan('right')}>right</button>
-					<button onClick={() => this.pan('down')}>bottom</button>
-					<button onClick={() => this.pan('left')}>left</button>
-				</div>
+
+				<MapControls
+					handleZoomIn={this.handleZoomIn}
+					handleZoomOut={this.handleZoomOut}
+					pan={this.pan}
+					handleReset={this.handleReset}
+				/>
+
 				<div style={mapOptions.wrapperStyles} className={'rsm-wrapper'}>
 					<ComposableMap
 						width={mapOptions.width}
