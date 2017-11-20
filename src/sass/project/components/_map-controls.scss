@@ -1,0 +1,106 @@
+$sz-controls: 100px;
+$sz-triangle: 8px;
+$bw-controls: 1px;
+$triangle-transparent: $sz-triangle solid transparent;
+$triangle: $sz-triangle solid white;
+.map {
+
+	&__controls {
+		@include position(absolute, null 0 0 null);
+		@include size($sz-controls);
+		box-sizing: border-box;
+	}
+
+	&__zoom {
+		@include size($sz-controls/2);
+		@include position(absolute, 50% null null 50%);
+		@include margin((-($sz-controls/4)) null null (-($sz-controls/4)));
+		border: 1px solid white;
+		border-radius: $sz-controls/4;
+		box-sizing: border-box;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		align-items: center;
+		overflow: hidden;
+
+		&-btn {
+			//background-color: $c-marker;
+			color: white;
+			text-align: center;
+			width: 100%;
+			cursor: pointer;
+			font-size: 16px;
+			&:first-of-type {
+
+			}
+
+			&:last-of-type {
+
+			}
+		}
+	}
+
+	&__pan {
+		@include size($sz-controls);
+		overflow: hidden;
+		//border: 2px solid white;
+		border-radius: $sz-controls/2;
+		box-sizing: border-box;
+		&-btn {
+			@include size($sz-triangle * 2);
+			//background-color: $c-marker;
+			border-radius: $sz-triangle;
+			cursor: pointer;
+
+			&:after {
+				content: '';
+				display: block;
+			}
+
+			&:nth-of-type(1) {
+				@include position(absolute, ($bw-controls *2) null null 50%);
+				@include margin(null null null (-($sz-triangle)));
+				&:after {
+					border-left: $triangle-transparent;
+					border-right: $triangle-transparent;
+					border-bottom: $triangle;
+					@include position(absolute, $bw-controls * 2 null null null);
+				}
+			}
+
+			&:nth-of-type(2) {
+				@include position(absolute, 50% ($bw-controls *2) null null);
+				@include margin((-($sz-triangle)) null null null);
+				&:after {
+					border-top: $triangle-transparent;
+					border-bottom: $triangle-transparent;
+					border-left: $triangle;
+					@include position(absolute, null $bw-controls * 2 null null);
+				}
+			}
+
+			&:nth-of-type(3) {
+				@include position(absolute, null null ($bw-controls *2) 50%);
+				@include margin(null null null (-($sz-triangle)));
+				&:after {
+					border-left: $triangle-transparent;
+					border-right: $triangle-transparent;
+					border-top: $triangle;
+					@include position(absolute, null null $bw-controls * 2 null);
+				}
+			}
+
+			&:nth-of-type(4) {
+				@include position(absolute, 50% null null ($bw-controls *2));
+				@include margin((-($sz-triangle)) null null null);
+				&:after {
+					border-top: $triangle-transparent;
+					border-bottom: $triangle-transparent;
+					border-right: $triangle;
+					@include position(absolute, null null null $bw-controls * 2);
+				}
+			}
+		}
+	}
+}

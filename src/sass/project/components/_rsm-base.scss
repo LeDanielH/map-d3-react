@@ -12,4 +12,9 @@
 		@include will-change(transform);
 		@extend %anim-base;
 	}
+	&-map {
+		&__wrapper {
+			position: relative;
+		}
+	}
 }
