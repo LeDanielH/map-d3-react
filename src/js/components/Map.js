@@ -59,11 +59,7 @@ class Map extends Component {
 			activeAnnotation: null
 		};
 
-		this.handleMarkerClick = this.handleMarkerClick.bind(this);
-		this.handleCountryClick = this.handleCountryClick.bind(this);
-		this.handleCountryDblClick = this.handleCountryDblClick.bind(this);
 		this.handleReset = this.handleReset.bind(this);
-		this.projection = this.projection.bind(this);
 		this.handleZoomIn = this.handleZoomIn.bind(this);
 		this.handleZoomOut = this.handleZoomOut.bind(this);
 	}
