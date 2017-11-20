@@ -62,7 +62,7 @@ class Map extends Component {
 		this.handleReset = this.handleReset.bind(this);
 		this.handleZoomIn = this.handleZoomIn.bind(this);
 		this.handleZoomOut = this.handleZoomOut.bind(this);
-		this.pan = this.pan.bind(this);
+		this.handlePan = this.handlePan.bind(this);
 	}
 
 	componentWillMount() {
@@ -76,14 +76,18 @@ class Map extends Component {
 		const isBiggerThanMax = this.state.zoom >= mapOptions.zoomMax;
 		if(isBiggerThanMax) return;
 		const newZoom = this.state.zoom * 2;
-		this.setState({ zoom: newZoom });
+		this.setState({
+				zoom: newZoom
+			}, () => this.setBoundaries(this.state.zoom, this.state.center.long, this.state.center.lat));
 	}
 
 	handleZoomOut() {
 		const isSmallerThanMin = this.state.zoom <= mapOptions.zoomMin;
 		if(isSmallerThanMin) return;
 		const newZoom = this.state.zoom / 2;
-		this.setState({ zoom: newZoom });
+		this.setState({
+			zoom: newZoom
+		}, () => this.setBoundaries(this.state.zoom, this.state.center.long, this.state.center.lat));
 	}
 
 	handleReset() { // returns world center, not current location
@@ -96,13 +100,18 @@ class Map extends Component {
 			}
 		}, () => this.setBoundaries(mapOptions.zoomMin, mapOptions.centerWorld.long, mapOptions.centerWorld.lat));
 	}
-	pan(direction) {
+	handlePan(direction) {
 		const currentLat = this.state.center.lat;
 		const currentLong = this.state.center.long;
+		const currentLongMin = this.state.longMin;
+		const currentLongMax = this.state.longMax;
+		const currentLatMin = this.state.latMin;
+		const currentLatMax = this.state.latMax;
 		const increment = 10;
 
 		switch (direction) {
 			case 'left':
+				if(currentLong < currentLongMin) return;
 				this.setState({
 					center: {
 						...this.state.center,
@@ -111,6 +120,7 @@ class Map extends Component {
 				});
 				break;
 			case 'right':
+				if(currentLong > currentLongMax) return;
 				this.setState({
 					center: {
 						...this.state.center,
@@ -119,6 +129,7 @@ class Map extends Component {
 				});
 				break;
 			case 'up':
+				if(currentLat > currentLatMax) return;
 				this.setState({
 					center: {
 						...this.state.center,
@@ -127,6 +138,7 @@ class Map extends Component {
 				});
 				break;
 			case 'down':
+				if(currentLat < currentLatMin) return;
 				this.setState({
 					center: {
 						...this.state.center,
@@ -137,7 +149,6 @@ class Map extends Component {
 			default:
 				console.log('no direction has been specified');
 		}
-
 	}
 
 	geoFindMe() {
@@ -357,16 +368,16 @@ class Map extends Component {
 
 	render() {
 		return (
-			<div>
+			<div className={'rsm-map'}>
 
 				<MapControls
 					handleZoomIn={this.handleZoomIn}
 					handleZoomOut={this.handleZoomOut}
-					pan={this.pan}
+					handlePan={this.handlePan}
 					handleReset={this.handleReset}
 				/>
 
-				<div style={mapOptions.wrapperStyles} className={'rsm-wrapper'}>
+				<div style={mapOptions.wrapperStyles} className={'rsm-map__wrapper'}>
 					<ComposableMap
 						width={mapOptions.width}
 						height={mapOptions.height}
