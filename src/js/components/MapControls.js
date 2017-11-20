@@ -12,17 +12,17 @@ class MapControls extends Component {
 		return (
 			<div className={"rsm-controls"}>
 				<div className={'rsm-controls__zoom'}>
-					<button onClick={handleZoomIn}>zoom in</button>
-					<button onClick={handleZoomOut}>zoom out</button>
+					<div onClick={handleZoomIn}>zoom in</div>
+					<div onClick={handleZoomOut}>zoom out</div>
 				</div>
 				<div className={'rsm-controls__pan'}>
-					<button onClick={() => handlePan('up')}>up</button>
-					<button onClick={() => handlePan('right')}>right</button>
-					<button onClick={() => handlePan('down')}>bottom</button>
-					<button onClick={() => handlePan('left')}>left</button>
+					<div onClick={() => handlePan('up')}>up</div>
+					<div onClick={() => handlePan('right')}>right</div>
+					<div onClick={() => handlePan('down')}>bottom</div>
+					<div onClick={() => handlePan('left')}>left</div>
 				</div>
 				<div className={"rsm-controls__reset"}>
-					<button onClick={handleReset}>reset</button>
+					<div onClick={handleReset}>reset</div>
 				</div>
 			</div>
 		)
