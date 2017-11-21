@@ -1,7 +1,6 @@
 process.env.NODE_ENV === 'production' ? module.exports = require('./prod.js') : module.exports = require('./dev.js');
 import React from 'react'
 import ReactDOM from 'react-dom';
-import '../sass/index.scss';
 import Map from './components/Map';
 
 document.addEventListener("DOMContentLoaded", () => {
