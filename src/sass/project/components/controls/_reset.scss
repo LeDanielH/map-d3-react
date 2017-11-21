@@ -1,0 +1,87 @@
+.map {
+	&__reset {
+		$circle-size: $sz-control * 2;
+		@include position(absolute, 50% null null 50%);
+		@include size($sz-controls/2 $circle-size);
+		@include margin((-($circle-size/2) null null (-($sz-controls/4))));
+		display: flex;
+		justify-content: space-around;
+		align-items: center;
+		&-btn {
+			display: inline-block;
+			text-align: center;
+			@include size($circle-size);
+			flex: 0 0 $circle-size;
+			max-width: $circle-size;
+			cursor: pointer;
+			box-sizing: border-box;
+			border-radius: 50%;
+			cursor: pointer;
+			@include will-change(border, background-color);
+			@extend %anim-base;
+			img {
+				@include size(100% auto);
+				display: block;
+			}
+
+			&.to-myplace {
+				background-color: transparent;
+				border: 1px solid white;
+				&:after {
+					@include size($sz-control);
+					@include position(absolute, 50% null null 50%);
+					content: '';
+					display: block;
+					@include margin((-($sz-control/2)) null null (-($sz-control/2)));
+					background-color: white;
+					border-radius: 50%;
+					@include will-change(transform, background-color);
+					@extend %anim-base;
+				}
+				&:hover {
+					border: 1px solid $c-marker;
+					background-color: rgba(255, 255, 255, 0.9);
+					&:after {
+						transform: rotate3d(1, 0, 0, 180deg);
+						background-color: $c-marker;
+					}
+				}
+			}
+			&.to-gmap {
+				img {
+					@include will-change(transform);
+					@extend %anim-base;
+					transform: rotate3d(1, 0, 0, 180deg);
+				}
+				&:hover {
+					img {
+						transform: rotate3d(1, 0, 0, 0deg);
+					}
+				}
+			}
+
+			&.to-map {
+				span {
+					@include will-change(transform, color, background-color);
+					@extend %anim-base;
+					transform: rotate(0);
+					color: white;
+					background-color: transparent;
+					font-weight: bold;
+					line-height: $circle-size + 3px;
+					font-size: $circle-size;
+					display: inline-block;
+					@include size($circle-size);
+					border-radius: $circle-size/2;
+				}
+				&:hover {
+					span {
+						transform: rotate(-360deg);
+						color: $c-marker;
+						background-color: white;
+					}
+				}
+			}
+		}
+	}
+}

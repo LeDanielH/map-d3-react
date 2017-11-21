@@ -1,0 +1,65 @@
+.map {
+	&__controls {
+		@include position(absolute, null 0 4px null);
+		@include size(135px 140px);
+		box-sizing: border-box;
+		pointer-events: none;
+		user-select: none;
+
+		&.active {
+			pointer-events: auto;
+			.map__controls-wrapper {
+				transform: scale(1);
+				opacity: 1;
+				visibility: visible;
+			}
+		}
+
+		&-wrapper {
+			transform: scale(0);
+			opacity: 0;
+			visibility: hidden;
+			@include will-change(transform, opacity, visibility);
+			@extend %anim-base;
+			@include size(135px 140px);
+			transform-origin: bottom right;
+		}
+
+		&-trigger {
+			pointer-events: initial;
+			@include size($sz-control * 2);
+			background-color: $c-light;
+			@include position(absolute, null ($sz-control - 1px) $sz-control null);
+			z-index: 2;
+			border: 1px solid $c-light;
+			@include will-change(border);
+			@extend %anim-base;
+			cursor: pointer;
+			span {
+				display: inline-block;
+				color: black;
+				line-height: 1;
+				font-size: $sz-control*2;
+				@include size($sz-control*2);
+				transform: rotate(225deg);
+				position: relative;
+				top: -3px;
+				left: -2px;
+				@include will-change(color);
+				@extend %anim-base;
+			}
+			&:hover {
+				//border: 1px solid $c-marker;
+				span {
+					color: $c-marker;
+				}
+			}
+		}
+	}
+	&__compass {
+		position: relative;
+		@include size($sz-compass);
+		border-radius: 50%;
+		background-color: $bc-controls;
+	}
+}

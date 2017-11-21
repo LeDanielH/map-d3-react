@@ -1,7 +1,11 @@
 @import "loader";
-@import "rsm-base";
-@import "rsm-geographies";
-@import "rsm-annotation";
-@import "rsm-marker";
-@import "rsm-graticule";
-@import "map-controls";
+@import "map/rsm-base";
+@import "map/rsm-geographies";
+@import "map/rsm-annotation";
+@import "map/rsm-marker";
+@import "map/rsm-graticule";
+@import "controls/controls";
+@import "controls/pan";
+@import "controls/zoom";
+@import "controls/range";
+@import "controls/reset";

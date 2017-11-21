@@ -1,5 +1,4 @@
-@import "variables";
-@import "placeholders";
-@import "mixins";
+@import "~normalize-scss/sass/normalize";
+@include normalize();
 @import "typo";
-@import "layout";
+@import "resets";
