@@ -330,11 +330,12 @@ class Map extends Component {
 		const isLessThenMarkerFocus = zoom < zoomFocus;
 
 		if(isLessThenMarkerFocus) {
+			console.log(isLessThenMarkerFocus);
 			this.setState({ zoom: zoomFocus }, () => this.setBoundaries(zoomFocus, longitude, latitude));
+		} else {
+			this.setBoundaries(zoom, longitude, latitude);
 		}
-
 		this.setState({ activeAnnotation: null });
-		this.setBoundaries(zoom, longitude, latitude);
 	}
 
 	handleMarkerDblClick(location) {
@@ -347,14 +348,14 @@ class Map extends Component {
 		const [longitude, latitude] = [center[0], center[1]];
 		const {zoom} = this.state;
 		const {zoomMin, zoomCountryMin} = mapOptions;
-		const minZoom = zoom <= zoomMin;
+		const minZoom = zoom < zoomMin;
 
 		if(minZoom) {
 			this.setState({ zoom: zoomCountryMin }, () => this.setBoundaries(zoomCountryMin, longitude, latitude));
+		} else {
+			this.setBoundaries(zoom, longitude, latitude);
 		}
-
 		this.setState({ activeAnnotation: id });
-		this.setBoundaries(zoom, longitude, latitude);
 	}
 
 	handleCountryDblClick(id, center) {
