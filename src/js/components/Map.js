@@ -18,7 +18,7 @@ import {
 	Annotation
 } from "react-simple-maps";
 
-import { getClickHandler } from "../helpers";
+import { getClickHandler, convertDMS } from "../helpers";
 import MapControls from './MapControls';
 
 
@@ -59,6 +59,7 @@ class Map extends Component {
 			latMin: -40,
 			activeAnnotation: null,
 			mapLoading: true,
+			mapControlsOpen: false,
 			yourLocation: {
 				lat: 0,
 				long: 0,
@@ -70,6 +71,9 @@ class Map extends Component {
 		this.handlePan = this.handlePan.bind(this);
 		this.handleRange = this.handleRange.bind(this);
 		this.resetToCurrentLocation = this.resetToCurrentLocation.bind(this);
+		this.goToGoogleMaps = this.goToGoogleMaps.bind(this);
+		this.handleMapControls = this.handleMapControls.bind(this);
+		this.handleMapControlsVisibility = this.handleMapControlsVisibility.bind(this);
 	}
 
 	componentWillMount() {
@@ -85,6 +89,17 @@ class Map extends Component {
 		const newZoom = zoom * 2;
 		if(zoom >= zoomMax) return;
 		this.setState({zoom: newZoom}, () => this.setBoundaries(newZoom, long, lat));
+	}
+
+	handleMapControls() {
+		console.log('handling map controls');
+		const isMapControlsOpen = this.state.mapControlsOpen === true;
+		isMapControlsOpen ? this.setState({ mapControlsOpen: false }) : this.setState({ mapControlsOpen: true })
+	}
+
+	handleMapControlsVisibility() {
+		const isMapControlsOpen = this.state.mapControlsOpen === true;
+		return isMapControlsOpen ? 'active' : '';
 	}
 
 	// todo handle zoomOut behaviour when focused on north or south
@@ -169,6 +184,14 @@ class Map extends Component {
 				zoom: zoomFocus},
 				this.setBoundaries(zoomFocus, long, lat))
 		}
+	}
+
+	goToGoogleMaps() {
+		const gmUrl='https://www.google.cz/maps/place/';
+		const {center: {long, lat}, zoom} = this.state;
+		const location = convertDMS(lat, long);
+		const goToLocation=`${gmUrl}${location}/@${lat},${long},${zoom}z/`;
+		window.open(goToLocation, '_blank');
 	}
 
 	geoFindMe() {
@@ -400,7 +423,9 @@ class Map extends Component {
 						handleReset={this.handleReset}
 						handleRange={this.handleRange}
 						resetToCurrentLocation={this.resetToCurrentLocation}
-
+						goToGoogleMaps={this.goToGoogleMaps}
+						handleMapControls={this.handleMapControls}
+						handleMapControlsVisibility={this.handleMapControlsVisibility}
 
 						latMin={this.state.latMin}
 						latMax={this.state.latMax}

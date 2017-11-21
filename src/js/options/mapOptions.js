@@ -8,7 +8,7 @@ const mapOptions = {
 	zoomBigCountry: 2,
 	dblClickDelay: 250,
 	panIncrement: 10,
-
+	gmLogo: 'https://www.google.com/maps/about/images/home/home-maps-icon.svg?mmfb=de7ec406c933d20ac2caf9114c2434a9',
 	centerWorld: {
 		long: 0,
 		lat: 25
