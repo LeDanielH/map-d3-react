@@ -1,8 +1,7 @@
 import React, { Component } from "react";
 
 import {
-	projectionForCentroids,
-	pathForCentroids,
+	projectionType,
 	getCentroid
 } from "../options/d3Options";
 
@@ -19,8 +18,11 @@ import {
 } from "react-simple-maps";
 
 import { getClickHandler, convertDMS } from "../helpers";
-import MapControls from './MapControls';
-
+import Controls from './map-controls/Controls';
+import Pan from './map-controls/Pan';
+import Range from './map-controls/Range';
+import Zoom from './map-controls/Zoom';
+import Reset from './map-controls/Reset';
 
 /* to add more custom projections directly from d3-geo-projections */
 // import { geoAiry, geoOrthographicRaw } from 'd3-geo-projection';
@@ -37,8 +39,6 @@ import mapOptions from '../options/mapOptions';
 // 	obj[key] = context(key);
 // });
 
-
-
 class Map extends Component {
 
 	constructor() {
@@ -48,7 +48,7 @@ class Map extends Component {
 			geographyPaths: [],
 			locations: [],
 			annotations: [],
-			projectionType: () => projectionForCentroids,
+			projectionType: () => projectionType,
 			center: {
 				long: 0,
 				lat: 0
@@ -415,26 +415,34 @@ class Map extends Component {
 			<div className={'rsm'}>
 
 				<div style={mapOptions.wrapperStyles} className={`rsm-map__wrapper ${this.handleLoading()}`}>
-					<MapControls
-
-						handleZoomIn={this.handleZoomIn}
-						handleZoomOut={this.handleZoomOut}
-						handlePan={this.handlePan}
-						handleReset={this.handleReset}
-						handleRange={this.handleRange}
-						resetToCurrentLocation={this.resetToCurrentLocation}
-						goToGoogleMaps={this.goToGoogleMaps}
+					<Controls
 						handleMapControls={this.handleMapControls}
 						handleMapControlsVisibility={this.handleMapControlsVisibility}
-
-						latMin={this.state.latMin}
-						latMax={this.state.latMax}
-						longMin={this.state.longMin}
-						longMax={this.state.longMax}
-						lat={this.state.center.lat}
-						long={this.state.center.long}
-
-					/>
+						rangeControls={
+							<Range
+								handleRange={this.handleRange}
+								latMin={this.state.latMin}
+								latMax={this.state.latMax}
+								longMin={this.state.longMin}
+								longMax={this.state.longMax}
+								lat={this.state.center.lat}
+								long={this.state.center.long}
+							/>
+						}
+					>
+						<Zoom
+							handleZoomIn={this.handleZoomIn}
+							handleZoomOut={this.handleZoomOut}
+						/>,
+						<Pan
+							handlePan={this.handlePan}
+						/>,
+						<Reset
+							handleReset={this.handleReset}
+							resetToCurrentLocation={this.resetToCurrentLocation}
+							goToGoogleMaps={this.goToGoogleMaps}
+						/>
+					</Controls>
 					<ComposableMap
 						width={mapOptions.width}
 						height={mapOptions.height}
@@ -459,7 +467,7 @@ class Map extends Component {
 
 							<Geographies
 								geographyPaths={this.state.geographyPaths}
-								// disableOptimization
+								disableOptimization
 							>
 								{
 									(geographies, projection) =>

@@ -54,6 +54,5 @@ export function convertDMS(lat, lng) {
 	const latitudeCardinal = Math.sign(lat) >= 0 ? "N" : "S";
 	const longitude = toDegreesMinutesAndSeconds(lng);
 	const longitudeCardinal = Math.sign(lng) >= 0 ? "E" : "W";
-	const dms = `${latitude}${latitudeCardinal}+${longitude}${longitudeCardinal}`;
-	return dms;
+	return `${latitude}${latitudeCardinal}+${longitude}${longitudeCardinal}`;
 }
