@@ -1,8 +1,11 @@
 import React from 'react';
+import mapOptions from '../../options/mapOptions';
+import '../../../sass/project/components/controls/_range.scss';
 
 const Range = (props) => {
 
 	const { latMin, latMax, lat, longMin, longMax, long, handleRange } = props;
+	const {rangeIncrement} = mapOptions;
 
 	return (
 		<div className="map__range">
@@ -11,7 +14,7 @@ const Range = (props) => {
 				       min={latMin}
 				       max={latMax}
 				       value={parseFloat(lat)}
-				       step={parseInt(2)}
+				       step={parseInt(rangeIncrement)}
 				       onChange={(e) => handleRange(e, 'lat')}
 				/>
 			</div>
@@ -20,7 +23,7 @@ const Range = (props) => {
 				       min={longMin}
 				       max={longMax}
 				       value={parseFloat(long)}
-				       step={parseInt(2)}
+				       step={parseInt(rangeIncrement)}
 				       onChange={(e) => handleRange(e, 'long')}
 				/>
 			</div>

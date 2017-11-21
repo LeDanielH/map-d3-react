@@ -1,4 +1,5 @@
 import React from 'react';
+import '../../../sass/project/components/controls/_controls.scss';
 
 const Controls = (props) => {
 

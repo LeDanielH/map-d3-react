@@ -1,5 +1,6 @@
 import React from 'react';
 import mapOptions from "../../options/mapOptions";
+import '../../../sass/project/components/controls/_reset.scss';
 
 const Reset = (props) => {
 

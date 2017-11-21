@@ -4,6 +4,7 @@ import {
 	projectionType,
 	getCentroid
 } from "../options/d3Options";
+import '../../sass/project/components/map/_rsm-map.scss';
 
 import {
 	ComposableMap,
@@ -229,12 +230,6 @@ class Map extends Component {
 		}
 
 		navigator.geolocation.getCurrentPosition(success, error);
-	}
-
-	projection(width, height, config) {
-		return this.state.projectionType
-			// .rotate([-10,-52,0])
-			// .scale(config.scale)
 	}
 
 	loadPaths() {
