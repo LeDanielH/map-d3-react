@@ -47,9 +47,16 @@ const config = {
 							{
 								loader: "sass-loader",
 								options: {
-									sourceMap: !prod,
-									includePaths: [
-										require('bourbon').includePaths
+									sourceMap: !prod
+								}
+							}, {
+
+								loader: 'sass-resources-loader',
+								options: {
+									resources: [
+										path.resolve(__dirname, './node_modules/bourbon/app/assets/stylesheets/_bourbon.scss'),
+										path.resolve(__dirname, './src/sass/project/settings/_settings.scss'),
+										path.resolve(__dirname, './src/sass/project/initial/_initial.scss')
 									]
 								}
 							}],
@@ -104,6 +111,7 @@ const config = {
 		historyApiFallback: true,
 		// noInfo: true,
 		inline: true,
+		hot: true,
 		watchOptions: {
 			// aggregateTimeout: 500,
 			// poll: 1000
