@@ -38,8 +38,7 @@
 				background-color: white;
 				position: relative;
 				top: -$sz-control;
-				@include will-change(border, background-color);
-				@extend %anim-base;
+				@include will-animate(border, background-color);
 				&:hover, &:focus {
 					border: 1px solid white;
 					background-color: $c-marker;

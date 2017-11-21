@@ -2,8 +2,7 @@
 	&-annotation {
 		&-text {
 			display: inline-block;
-			@include will-change(transform, opacity);
-			@extend %anim-base;
+			@include will-animate(transform, opacity);
 			fill: white;
 			font-size: 4px;
 			transform: scale(0);

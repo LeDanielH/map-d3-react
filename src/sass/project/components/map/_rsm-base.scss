@@ -9,8 +9,7 @@
 		background-color: crimson;
 	}
 	&-zoomable-group {
-		@include will-change(transform);
-		@extend %anim-base;
+		@include will-animate(transform);
 	}
 	&-map {
 		&__wrapper {

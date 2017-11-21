@@ -3,8 +3,7 @@
 		overflow: hidden;
 	}
 	&-geography {
-		@include will-change(fill);
-		@extend %anim-base;
+		@include will-animate(fill);
 		fill: $c-country;
 		stroke: $c-border;
 		stroke-width: 0.2;

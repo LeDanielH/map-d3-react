@@ -2,8 +2,7 @@
 	&-marker {
 		cursor: pointer;
 		circle {
-			@include will-change(fill, transform, stroke-width, stroke);
-			@extend %anim-base;
+			@include will-animate(fill, transform, stroke-width, stroke);
 			fill: $c-marker;
 			stroke: $c-marker-stroke;
 			stroke-width: 0px;
@@ -11,8 +10,7 @@
 		}
 		&-text {
 			display: inline-block;
-			@include will-change(transform, opacity);
-			@extend %anim-base;
+			@include will-animate(transform, opacity);
 			transform: translate3d(-50%, 0, 0);
 			font-size: 3px;
 			opacity: 0;

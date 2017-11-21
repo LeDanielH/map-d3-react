@@ -14,8 +14,7 @@
 				transform: scale(0.8);
 				content: '';
 				display: block;
-				@include will-change(border, transform);
-				@extend %anim-base;
+				@include will-animate(border, transform);
 			}
 
 			&:hover {
