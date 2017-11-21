@@ -15,7 +15,6 @@ import * as path from 'path';
 
 const config = {
 	entry: ['./src/js/index.js', './src/index.pug'],
-	// context: path.resolve(__dirname, "mapp-app"),
 	output: {
 		filename: 'bundle.js',
 		path: path.resolve(__dirname, 'dist')
@@ -109,13 +108,8 @@ const config = {
 		port: 9876,
 		clientLogLevel: "warning",
 		historyApiFallback: true,
-		// noInfo: true,
 		inline: true,
-		hot: true,
-		watchOptions: {
-			// aggregateTimeout: 500,
-			// poll: 1000
-		}
+		hot: true
 	}
 };
 
