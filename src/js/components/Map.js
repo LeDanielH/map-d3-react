@@ -325,8 +325,8 @@ class Map extends Component {
 				this.setState({
 					longMax: 158,
 					longMin: -158,
-					latMax: 86,
-					latMin: -86
+					latMax: 85,
+					latMin: -85
 				}, () => this.positionMap(longitude, latitude));
 				break;
 			case 16:
@@ -428,10 +428,10 @@ class Map extends Component {
 						<Zoom
 							handleZoomIn={this.handleZoomIn}
 							handleZoomOut={this.handleZoomOut}
-						/>,
+						/>
 						<Pan
 							handlePan={this.handlePan}
-						/>,
+						/>
 						<Reset
 							handleReset={this.handleReset}
 							resetToCurrentLocation={this.resetToCurrentLocation}
