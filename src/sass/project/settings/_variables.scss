@@ -17,8 +17,10 @@ $c-marker-stroke: rgba(251,0,181, 0.5);
 // map controls vars
 $sz-controls: 150px;
 $sz-control: 8px;
-$sz-compass: 110px;
+$sz-compass: 100px;
 $bw-controls: 1px;
+
+$sz-compass-middle: $sz-compass * 0.65;
 $triangle-transparent: $sz-control solid transparent;
 $triangle: $sz-control solid $c-light;
 $triangle-hover: $sz-control solid $c-marker;

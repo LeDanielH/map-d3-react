@@ -2,23 +2,17 @@
 	&__reset {
 		$circle-size: $sz-control * 2;
 		@include position(absolute, 50% null null 50%);
-		@include size($sz-controls/2 $circle-size);
-		@include margin((-($circle-size/2) null null (-($sz-controls/4))));
-		display: flex;
-		justify-content: space-around;
-		align-items: center;
+		@include size($sz-compass-middle $circle-size);
+		@include margin((-($circle-size/2) null null (-($sz-compass-middle/2))));
 		&-btn {
-			display: inline-block;
 			text-align: center;
 			@include size($circle-size);
-			flex: 0 0 $circle-size;
 			max-width: $circle-size;
 			cursor: pointer;
 			box-sizing: border-box;
 			border-radius: 50%;
 			cursor: pointer;
-			@include will-change(border, background-color);
-			@extend %anim-base;
+			@include will-animate(border, background-color);
 			img {
 				@include size(100% auto);
 				display: block;
@@ -27,6 +21,9 @@
 			&.to-myplace {
 				background-color: transparent;
 				border: 1px solid white;
+				position: relative;
+				@include position(absolute, 50% null null 50%);
+				@include margin((-($circle-size/2)) null null (-($circle-size/2)));
 				&:after {
 					@include size($sz-control);
 					@include position(absolute, 50% null null 50%);
@@ -35,8 +32,7 @@
 					@include margin((-($sz-control/2)) null null (-($sz-control/2)));
 					background-color: white;
 					border-radius: 50%;
-					@include will-change(transform, background-color);
-					@extend %anim-base;
+					@include will-animate(transform, background-color);
 				}
 				&:hover {
 					border: 1px solid $c-marker;
@@ -48,9 +44,12 @@
 				}
 			}
 			&.to-gmap {
+				// todo remove completely later
+				opacity: 0;
+				visibility: hidden;
+				pointer-events: none;
 				img {
-					@include will-change(transform);
-					@extend %anim-base;
+					@include will-animate(transform);
 					transform: rotate3d(1, 0, 0, 180deg);
 				}
 				&:hover {
@@ -61,9 +60,10 @@
 			}
 
 			&.to-map {
+				@include position(absolute, 50% null null ($circle-size * 0.4));
+				@include margin((-($circle-size/2)) null null null);
 				span {
-					@include will-change(transform, color, background-color);
-					@extend %anim-base;
+					@include will-animate(transform, color, background-color);
 					transform: rotate(0);
 					color: white;
 					background-color: transparent;

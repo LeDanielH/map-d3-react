@@ -1,48 +1,42 @@
 .map {
 	&__zoom {
-		@include size($sz-controls/2);
+		@include size($sz-compass-middle);
 		@include position(absolute, 50% null null 50%);
-		@include margin((-($sz-controls/4)) null null (-($sz-controls/4)));
+		@include margin((-($sz-compass-middle/2)) null null (-($sz-compass-middle/2)));
 		border: 1px solid white;
-		border-radius: $sz-controls/4;
-		box-sizing: border-box;
-		display: flex;
-		flex-direction: column;
-		justify-content: space-between;
-		align-items: center;
-		overflow: hidden;
-
+		border-radius: $sz-compass-middle/2;
 		&-btn {
 			//background-color: $c-marker;
-			color: white;
-			text-align: center;
-			width: 100%;
+			@include size($sz-control * 2);
+			margin-left: -($sz-control);
 			cursor: pointer;
-			&:first-of-type {
+			background-color: transparent;
+			border-radius: 50%;
+			@include will-animate(background-color);
 
+			&:first-of-type {
+				@include position(absolute, 3px null null 50%);
 			}
 
 			&:last-of-type {
-
+				@include position(absolute, null null 3px 50%);
 			}
 			span {
 				display: inline-block;
-				@include will-change(color, transform, background-color, border);
-				@extend %anim-base;
+				@include will-animate(color, transform, background-color, border);
+				@include position(absolute, 50% null null 50%);
+				transform: translate(-50%, -50%);
 				background-color: transparent;
-				line-height: $sz-control * 2;
-				@include size($sz-control * 2);
-				font-size: $sz-control*2;
+				color: white;
 				border-radius: 50%;
-				border: 1px solid transparent;
-				box-sizing: content-box;
+				font-size: $sz-control * 2;
+				line-height: $sz-control * 2;
 			}
 			&:hover {
+				background-color: white;
 				span {
 					//transform: rotate3d(1, 0, 0, 180deg);
 					color: $c-marker;
-					background-color: white;
-					border: 1px solid $c-marker
 				}
 			}
 		}
