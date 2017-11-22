@@ -36,7 +36,7 @@
 			pointer-events: initial;
 			@include size($sz-control * 2);
 			background-color: $c-light;
-			@include position(absolute, null ($sz-control - 1px) ($sz-control + 1px) null);
+			@include position(absolute, null 6px 7px null);
 			z-index: 2;
 			border: 1px solid $c-light;
 			@include will-animate(border, transform);
