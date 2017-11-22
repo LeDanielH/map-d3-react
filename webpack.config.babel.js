@@ -52,10 +52,19 @@ const config = {
 
 								loader: 'sass-resources-loader',
 								options: {
-									resources: [
+									resources: [ // direct import faster than sass import
+
+										// settings
 										path.resolve(__dirname, './node_modules/bourbon/app/assets/stylesheets/_bourbon.scss'),
-										path.resolve(__dirname, './src/sass/project/settings/_settings.scss'),
-										path.resolve(__dirname, './src/sass/project/initial/_initial.scss')
+										path.resolve(__dirname, './src/sass/project/settings/_variables.scss'),
+										path.resolve(__dirname, './src/sass/project/settings/_placeholders.scss'),
+										path.resolve(__dirname, './src/sass/project/settings/_mixins.scss'),
+
+										// base styles
+										path.resolve(__dirname, './node_modules/normalize-scss/sass/_normalize.scss'),
+										path.resolve(__dirname, './src/sass/project/initial/_normalize-init.scss'),
+										path.resolve(__dirname, './src/sass/project/initial/_resets.scss'),
+										path.resolve(__dirname, './src/sass/project/initial/_typo.scss')
 									]
 								}
 							}],
@@ -77,7 +86,8 @@ const config = {
 							pretty: true
 						}
 					}
-				]
+				],
+				exclude: /node_modules/
 			},
 			{
 				test: /\.(png|jpg)$/,
