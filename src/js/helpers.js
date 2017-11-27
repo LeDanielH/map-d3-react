@@ -1,4 +1,3 @@
-import mapOptions from './options/mapOptions';
 
 export function responsivefy(svg) {
     // get container + svg aspect ratio
@@ -25,8 +24,9 @@ export function responsivefy(svg) {
 }
 
 export function getClickHandler(onClick, onDoubleClick, delay) {
+	const dblClickDelay = 250;
 	let timeoutID = null;
-	delay = delay || mapOptions.dblClickDelay;
+	delay = delay || dblClickDelay;
 	return function (event) {
 		if (!timeoutID) {
 			timeoutID = setTimeout(() => {
