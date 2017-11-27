@@ -1,12 +1,6 @@
 const mapOptions = {
 	width: 980,
 	height: 551,
-	zoomMin: 1,
-	zoomCountryMin: 2,
-	zoomMax: 16,
-	zoomFocus: 4,
-	zoomBigCountry: 2,
-	dblClickDelay: 250,
 	panIncrement: 10,
 	rangeIncrement: 2,
 	gmLogo: 'https://www.google.com/maps/about/images/home/home-maps-icon.svg?mmfb=de7ec406c933d20ac2caf9114c2434a9',
@@ -15,11 +9,53 @@ const mapOptions = {
 		lat: 25
 	},
 
-	latMin: -52,
-	latMax: 62,
-	longMin: -100,
-	longMax: 102,
-	longMaxRatio: 15,
+	zooms: [
+		{
+			zoom: 1,
+			boundaries: {
+				longMax: 5,
+				longMin: -5,
+				latMax: 30,
+				latMin: -30
+			}
+		},
+		{
+			zoom: 2,
+			boundaries: {
+				longMax: 92,
+				longMin: -92,
+				latMax: 65,
+				latMin: -65
+			},
+		},
+		{
+			zoom: 4,
+			boundaries: {
+				longMax: 135,
+				longMin: -135,
+				latMax: 80,
+				latMin: -80
+			},
+		},
+		{
+			zoom: 8,
+			boundaries: {
+				longMax: 158,
+				longMin: -158,
+				latMax: 85,
+				latMin: -85
+			},
+		},
+		{
+			zoom: 16,
+			boundaries: {
+				longMax: 169,
+				longMin: -169,
+				latMax: 88,
+				latMin: -88
+			},
+		}
+	],
 
 	waterColor: '#0d5469',
 
