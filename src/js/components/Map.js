@@ -40,30 +40,36 @@ import mapOptions from '../options/mapOptions';
 // 	obj[key] = context(key);
 // });
 
+const {zooms, centerWorld} = mapOptions;
+const zoomMin = zooms[0].zoom;
+const zoomFocus = zooms[2].zoom;
+const zoomCountryMin = zooms[1].zoom;
+
 class Map extends Component {
 
 	constructor() {
 		super();
 		this.state = {
-			zoom: 1,
+			zoom: zooms[0].zoom,
 			geographyPaths: [],
 			locations: [],
 			annotations: [],
 			projectionType: () => projectionType,
 			center: {
-				long: 0,
-				lat: 0
+				long: centerWorld.long,
+				lat: centerWorld.lat
 			},
-			longMax: 20,
-			longMin: -20,
-			latMax: 40,
-			latMin: -40,
+			longMax: zooms[0].boundaries.longMax,
+			longMin: zooms[0].boundaries.longMin,
+			latMax: zooms[0].boundaries.latMax,
+			latMin: zooms[0].boundaries.latMin,
+
 			activeAnnotation: null,
 			mapLoading: true,
 			mapControlsOpen: false,
 			yourLocation: {
-				lat: 0,
-				long: 0,
+				lat: centerWorld.long,
+				long: centerWorld.lat,
 			}
 		};
 		this.handleReset = this.handleReset.bind(this);
@@ -85,10 +91,19 @@ class Map extends Component {
 	}
 
 	handleZoomIn() {
+
 		const {zoom, center: {long, lat}} = this.state;
-		const {zoomMax} = mapOptions;
-		const newZoom = zoom * 2;
-		if(zoom >= zoomMax) return;
+		let newZoom;
+		console.log(zooms);
+		for (let i = 0; i < zooms.length; i++) {
+			if(zooms[i].zoom === zoom) {
+				if (i < zooms.length - 1) {
+					newZoom = zooms[i + 1].zoom;
+				} else {
+					newZoom = zoom
+				}
+			}
+		}
 		this.setState({zoom: newZoom}, () => this.setBoundaries(newZoom, long, lat));
 	}
 
@@ -106,9 +121,16 @@ class Map extends Component {
 	// todo handle zoomOut behaviour when focused on north or south
 	handleZoomOut() {
 		const {zoom, center:{long, lat}} = this.state;
-		const {zoomMin} = mapOptions;
-		const newZoom = zoom/2;
-		if(zoom <= zoomMin) return;
+		let newZoom;
+		for (let i = 0; i < zooms.length; i++) {
+			if(zooms[i].zoom === zoom) {
+				if (i > 0) {
+					newZoom = zooms[i - 1].zoom;
+				} else {
+					newZoom = zoom
+				}
+			}
+		}
 		this.setState({ zoom: newZoom }, () => this.setBoundaries(newZoom, long, lat));
 	}
 
@@ -122,7 +144,7 @@ class Map extends Component {
 	}
 
 	handleReset() { // returns world center, not current location
-		const {zoomMin, centerWorld: {long, lat}} = mapOptions;
+		const {centerWorld: {long, lat}} = mapOptions;
 		this.setState({
 			zoom: zoomMin,
 			activeAnnotation: null,
@@ -179,7 +201,6 @@ class Map extends Component {
 		if (long === null || lat === null) {
 			alert('Your current location is not available.');
 		} else {
-			const {zoomFocus} = mapOptions;
 			this.setState({
 				center: { long: long, lat: lat},
 				zoom: zoomFocus},
@@ -205,7 +226,6 @@ class Map extends Component {
 
 		function success(position) {
 			const {longitude, latitude} = position.coords;
-			const {zoomFocus} = mapOptions;
 			_this.setState({
 				center: {long: longitude, lat: latitude},
 				zoom: zoomFocus,
@@ -220,7 +240,7 @@ class Map extends Component {
 
 		function error() {
 			console.log('unable to retrieve your location');
-			const {zoomMin, centerWorld: {long, lat}} = mapOptions;
+			const {centerWorld: {long, lat}} = mapOptions;
 			_this.setState({
 				center: { long: long, lat: lat},
 				zoom: zoomMin,
@@ -295,55 +315,23 @@ class Map extends Component {
 
 	// todo figure out how not to hard code these values for each zoom state
 	setBoundaries(zoom, longitude, latitude) {
-		switch (zoom) {
-			case 1:
-				this.setState({
-					longMax: 5,
-					longMin: -5,
-					latMax: 30,
-					latMin: -30
-				}, () => this.positionMap(longitude, latitude));
-				break;
-			case 2:
-				this.setState({
-					longMax: 92,
-					longMin: -92,
-					latMax: 65,
-					latMin: -65
-				}, () => this.positionMap(longitude, latitude));
-				break;
-			case 4:
-				this.setState({
-					longMax: 135,
-					longMin: -135,
-					latMax: 80,
-					latMin: -80
-				}, () => this.positionMap(longitude, latitude));
-				break;
 
-			case 8:
-				this.setState({
-					longMax: 158,
-					longMin: -158,
-					latMax: 85,
-					latMin: -85
-				}, () => this.positionMap(longitude, latitude));
-				break;
-			case 16:
-				this.setState({
-					longMax: 169,
-					longMin: -169,
-					latMax: 88,
-					latMin: -88
-				}, () => this.positionMap(longitude, latitude));
-				break;
-
+		for (let i = 0; i < zooms.length; i++) {
+			switch (zoom) {
+				case zooms[i].zoom:
+					this.setState({
+						longMax: zooms[i].boundaries.longMax,
+						longMin: zooms[i].boundaries.longMin,
+						latMax: zooms[i].boundaries.latMax,
+						latMin: zooms[i].boundaries.latMin
+					}, () => this.positionMap(longitude, latitude));
+					break;
+			}
 		}
 	}
 
 	handleMarkerClick(location) {
 		const [longitude, latitude] = [location.coordinates[0], location.coordinates[1]];
-		const {zoomFocus} = mapOptions;
 		const {zoom} = this.state;
 		const isLessThenMarkerFocus = zoom < zoomFocus;
 
@@ -365,7 +353,6 @@ class Map extends Component {
 	handleCountryClick(id, center) {
 		const [longitude, latitude] = [center[0], center[1]];
 		const {zoom} = this.state;
-		const {zoomMin, zoomCountryMin} = mapOptions;
 		const minZoom = zoom < zoomMin;
 
 		if(minZoom) {
